@@ -7,18 +7,34 @@ BUILDROOT_GIT=git://git.buildroot.net/buildroot
 BUILDROOT_VERSION=2022.05
 RISCV_VP_GIT=https://github.com/agra-uni-bremen/riscv-vp.git
 RISCV_VP_VERSION=8ddfda7f8762955f926fa100c327afdd4300239b
+RISCV_VP_ARGS=\
+	--use-data-dmi			\
+	--tlm-global-quantum=1000
 
-.PHONY: all get dtb build_rv32 build_rv64 build clean distclean
+
+.PHONY: all get dtb build_rv32 build_rv64 build run_rv32 run_rv64 clean distclean
 
 all: build
 
 get: .stamp/riscv-vp_get .stamp/buildroot_get
 
-build_rv32: .stamp/riscv-vp_build .stamp/buildroot_rv32_build #dt/linux-vp_rv32.dtb
+build_rv32: .stamp/riscv-vp_build .stamp/buildroot_rv32_build dt/linux-vp_rv32.dtb
 
-build_rv64: .stamp/riscv-vp_build .stamp/buildroot_rv64_build #dt/linux-vp_rv64.dtb
+build_rv64: .stamp/riscv-vp_build .stamp/buildroot_rv64_build dt/linux-vp_rv64.dtb
 
 build: build_rv32 build_rv64
+
+run_rv32: build_rv32
+	riscv-vp/vp/build/bin/linux32-vp			\
+		$(RISCV_VP_ARGS)				\
+		--dtb-file=dt/linux-vp_rv32.dtb			\
+		buildroot_rv32/output/images/fw_payload.elf
+
+run_rv64: build_rv64
+	riscv-vp/vp/build/bin/linux-vp				\
+		$(RISCV_VP_ARGS)				\
+		--dtb-file=dt/linux-vp_rv64.dtb			\
+		buildroot_rv64/output/images/fw_payload.elf
 
 clean:
 	- $(MAKE) clean -C riscv-vp
@@ -78,12 +94,14 @@ distclean:
 	@echo " + BUILD BUILDROOT FOR RV32"
 	make -C buildroot_rv32 source
 	make -C buildroot_rv32
+	make -C buildroot_rv32 opensbi-rebuild
 	@touch $@
 
 .stamp/buildroot_rv64_build: .stamp/buildroot_config
 	@echo " + BUILD BUILDROOT FOR RV64"
 	make -C buildroot_rv64 source
 	make -C buildroot_rv64
+	make -C buildroot_rv64 opensbi-rebuild
 	@touch $@
 
 
