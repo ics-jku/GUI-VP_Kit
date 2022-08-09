@@ -30,7 +30,7 @@ clean:
 
 distclean:
 	- rm -rf .stamp
-	- rm -rf buildroot_rv32 buildroot_rv64
+	- rm -rf buildroot_rv32 buildroot_rv64 buildroot_dl
 	- rm -rf riscv-vp
 	- rm -rf dt/*.dts
 
@@ -66,8 +66,6 @@ distclean:
 	git clone $(BUILDROOT_GIT) buildroot_rv32
 	( cd buildroot_rv32 && git checkout $(BUILDROOT_VERSION) )
 	cp -a buildroot_rv32 buildroot_rv64
-	# TODO: prevent multiple downloads
-	#( cd buildroot_rv64 && rm -rf dl && ln -s ../buildroot_rv32/dl )
 	@touch $@
 
 .stamp/buildroot_config: .stamp/buildroot_get
