@@ -104,6 +104,8 @@ distclean:
 	cp configs/buildroot_rv64.config buildroot_rv64/.config
 	cp configs/busybox.config buildroot_rv32
 	cp configs/busybox.config buildroot_rv64
+	cp configs/linux_rv32.config buildroot_rv32
+	cp configs/linux_rv64.config buildroot_rv64
 	@touch $@
 
 .stamp/buildroot_rv32_build: .stamp/buildroot_config
