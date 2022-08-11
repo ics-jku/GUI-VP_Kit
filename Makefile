@@ -6,10 +6,11 @@
 BUILDROOT_GIT=git://git.buildroot.net/buildroot
 BUILDROOT_VERSION=2022.05
 RISCV_VP_GIT=https://github.com/agra-uni-bremen/riscv-vp.git
-RISCV_VP_VERSION=8ddfda7f8762955f926fa100c327afdd4300239b
+RISCV_VP_VERSION=da864810d9034ab6c4be2e084ce6511b35676e61
 RISCV_VP_ARGS=\
 	--use-data-dmi			\
-	--tlm-global-quantum=1000
+	--tlm-global-quantum=1000	\
+	--tun-device tun10
 
 
 .PHONY: all get dtb build_rv32 build_rv64 build vp-rebuild \
