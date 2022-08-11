@@ -12,7 +12,9 @@ RISCV_VP_ARGS=\
 	--tlm-global-quantum=1000
 
 
-.PHONY: all get dtb build_rv32 build_rv64 build run_rv32 run_rv64 clean distclean
+.PHONY: all get dtb build_rv32 build_rv64 build vp-rebuild \
+	buildroot_rv32-rebuild buildroot_rv64-rebuild \
+	run_rv32 run_rv64 clean distclean
 
 all: build
 
@@ -23,6 +25,18 @@ build_rv32: .stamp/riscv-vp_build .stamp/buildroot_rv32_build dt/linux-vp_rv32.d
 build_rv64: .stamp/riscv-vp_build .stamp/buildroot_rv64_build dt/linux-vp_rv64.dtb
 
 build: build_rv32 build_rv64
+
+vp-rebuild:
+	rm -rf .stamp/riscv-vp_build
+	make .stamp/riscv-vp_build
+
+buildroot_rv32-rebuild:
+	rm -rf .stamp/buildroot_rv32_build
+	make .stamp/buildroot_rv32_build
+
+buildroot_rv64-rebuild:
+	rm -rf .stamp/buildroot_rv64_build
+	make .stamp/buildroot_rv64_build
 
 run_rv32: build_rv32
 	riscv-vp/vp/build/bin/linux32-vp			\
