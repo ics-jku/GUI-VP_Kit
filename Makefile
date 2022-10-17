@@ -4,7 +4,7 @@
 #
 
 BUILDROOT_GIT=git://git.buildroot.net/buildroot
-BUILDROOT_VERSION=2022.05
+BUILDROOT_VERSION=2022.08.1
 RISCV_VP_GIT=https://github.com/agra-uni-bremen/riscv-vp.git
 RISCV_VP_VERSION=c456b68d9f51d4e6d317c9ef0ceb532b915e1ff4
 RISCV_VP_ARGS=\
