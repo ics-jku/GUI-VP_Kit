@@ -9,7 +9,7 @@ RISCV_VP_GIT=https://github.com/agra-uni-bremen/riscv-vp.git
 RISCV_VP_VERSION=c456b68d9f51d4e6d317c9ef0ceb532b915e1ff4
 RISCV_VP_ARGS=\
 	--use-data-dmi			\
-	--tlm-global-quantum=1000	\
+	--tlm-global-quantum=1000000	\
 	--tun-device tun10
 
 
