@@ -13,9 +13,15 @@ RISCV_VP_ARGS=\
 	--tun-device tun10
 
 
-.PHONY: all get dtb build_rv32 build_rv64 build vp-rebuild \
+.PHONY: help all get dtb build_rv32 build_rv64 build vp-rebuild \
 	buildroot_rv32-rebuild buildroot_rv64-rebuild \
 	run_rv32 run_rv64 clean distclean
+
+help:
+	@echo
+	@echo "Targets:"
+	@grep '^[^#[:space:]].*:' Makefile | cut -d':' -f1 | grep -v '\.\|dt/\|='
+	@echo
 
 all: build
 

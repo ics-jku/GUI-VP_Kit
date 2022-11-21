@@ -34,6 +34,9 @@ This section explains how to build the project and boot the vp.
  4. The project repository
  5. An active shell in the project directory
 
+### Help
+A list of all useful make targets is provided by ```make help``` or simply ```make```.
+
 ### Build
 **Note:** Builds can take a long time.
 
