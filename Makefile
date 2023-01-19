@@ -90,6 +90,9 @@ distclean:
 
 .stamp/riscv-vp_build: .stamp/riscv-vp_get
 	@echo " + BUILD RISC-V VP"
+	# support cmake 3.18 (debian 11)
+	sed -i riscv-vp/vp/CMakeLists.txt -e \
+		's/cmake_minimum_required(VERSION 3.20)/cmake_minimum_required(VERSION 3.18)/g'
 	# ensure release build
 	CMAKE_BUILD_TYPE=Release $(MAKE) vps -C riscv-vp #-j$(NPROCS) (broken)
 	@touch $@
