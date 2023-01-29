@@ -28,6 +28,26 @@
     clock-frequency = <33333333>;
     clock-output-names = "xtal";
   };
+
+  poweroff {
+    value = <0x5555>;
+    offset = <0x00>;
+    regmap = <&test>;
+    compatible = "syscon-poweroff";
+  };
+
+  reboot {
+    value = <0x7777>;
+    offset = <0x00>;
+    regmap = <&test>;
+    compatible = "syscon-reboot";
+  };
+
+  test: test@100000 {
+    reg = <0x100000 0x1000>;
+    compatible = "sifive,test1", "sifive,test0", "syscon";
+  };
+
   uart0: uart@10010000 {
     reg = <0x10010000 0x00000fff>;
     interrupt-parent = <&plic>;
