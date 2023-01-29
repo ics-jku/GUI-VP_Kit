@@ -5,9 +5,9 @@
 
 BUILDROOT_GIT=git://git.buildroot.net/buildroot
 BUILDROOT_VERSION=2022.08.1
-RISCV_VP_GIT=https://github.com/agra-uni-bremen/riscv-vp.git
-RISCV_VP_VERSION=94c55197c6737f18b60dfa7d00adf8b4d47c7b3f
-RISCV_VP_ARGS=\
+GUI_VP_GIT=git@github.com:ics-jku/GUI-VP.git
+GUI_VP_VERSION=GUI-VP_glsvlsi_2023
+GUI_VP_ARGS=\
 	--use-data-dmi			\
 	--tlm-global-quantum=1000000	\
 	--tun-device tun10
@@ -25,17 +25,17 @@ help:
 
 all: build
 
-get: .stamp/riscv-vp_get .stamp/buildroot_get
+get: .stamp/gui-vp_get .stamp/buildroot_get
 
-build_rv32: .stamp/riscv-vp_build .stamp/buildroot_rv32_build dt/linux-vp_rv32.dtb
+build_rv32: .stamp/gui-vp_build .stamp/buildroot_rv32_build dt/linux-vp_rv32.dtb
 
-build_rv64: .stamp/riscv-vp_build .stamp/buildroot_rv64_build dt/linux-vp_rv64.dtb
+build_rv64: .stamp/gui-vp_build .stamp/buildroot_rv64_build dt/linux-vp_rv64.dtb
 
 build: build_rv32 build_rv64
 
 vp-rebuild:
-	rm -rf .stamp/riscv-vp_build
-	make .stamp/riscv-vp_build
+	rm -rf .stamp/gui-vp_build
+	make .stamp/gui-vp_build
 
 buildroot_rv32-rebuild:
 	rm -rf .stamp/buildroot_rv32_build
@@ -46,19 +46,19 @@ buildroot_rv64-rebuild:
 	make .stamp/buildroot_rv64_build
 
 run_rv32: build_rv32
-	riscv-vp/vp/build/bin/linux32-vp			\
-		$(RISCV_VP_ARGS)				\
+	GUI-VP/vp/build/bin/linux32-vp				\
+		$(GUI_VP_ARGS)					\
 		--dtb-file=dt/linux-vp_rv32.dtb			\
 		buildroot_rv32/output/images/fw_payload.elf
 
 run_rv64: build_rv64
-	riscv-vp/vp/build/bin/linux-vp				\
-		$(RISCV_VP_ARGS)				\
+	GUI-VP/vp/build/bin/linux-vp				\
+		$(GUI_VP_ARGS)					\
 		--dtb-file=dt/linux-vp_rv64.dtb			\
 		buildroot_rv64/output/images/fw_payload.elf
 
 clean:
-	- $(MAKE) clean -C riscv-vp
+	- $(MAKE) clean -C GUI-VP
 	- $(MAKE) clean -C buildroot_rv64
 	- $(MAKE) clean -C buildroot_rv32
 	- rm -rf dt/*.dtb
@@ -68,7 +68,7 @@ clean:
 distclean:
 	- rm -rf .stamp
 	- rm -rf buildroot_rv32 buildroot_rv64 buildroot_dl
-	- rm -rf riscv-vp
+	- rm -rf GUI-VP
 	- rm -rf dt/*.dts
 
 
@@ -79,22 +79,22 @@ distclean:
 	@touch $@
 
 
-## RISC-V VP
+## GUI VP
 
-.stamp/riscv-vp_get: .stamp/init
+.stamp/gui-vp_get: .stamp/init
 	@echo " + GET RISC-V VP"
-	rm -rf riscv-vp
-	git clone $(RISCV_VP_GIT) riscv-vp
-	( cd riscv-vp && git checkout $(RISCV_VP_VERSION) )
+	rm -rf GUI-VP
+	git clone $(GUI_VP_GIT) GUI-VP
+	( cd GUI-VP && git checkout $(GUI_VP_VERSION) )
 	@touch $@
 
-.stamp/riscv-vp_build: .stamp/riscv-vp_get
+.stamp/gui-vp_build: .stamp/gui-vp_get
 	@echo " + BUILD RISC-V VP"
 	# support cmake 3.18 (debian 11)
-	sed -i riscv-vp/vp/CMakeLists.txt -e \
+	sed -i GUI-VP/vp/CMakeLists.txt -e \
 		's/cmake_minimum_required(VERSION 3.20)/cmake_minimum_required(VERSION 3.18)/g'
 	# ensure release build
-	CMAKE_BUILD_TYPE=Release $(MAKE) vps -C riscv-vp #-j$(NPROCS) (broken)
+	CMAKE_BUILD_TYPE=Release $(MAKE) vps -C GUI-VP #-j$(NPROCS) (broken)
 	@touch $@
 
 
