@@ -1,0 +1,14 @@
+    CPU@CPU_NR@: cpu@@CPU_NR@ {
+      device_type = "cpu";
+      reg = <@CPU_NR@>;
+      status = @STATUS@;
+      compatible = "riscv";
+      riscv,isa = @RISCV_ISA@;
+      mmu-type = @MMU_TYPE@;
+      clock-frequency = <100000000>;
+      CPU@CPU_NR@_intc: interrupt-controller {
+        #interrupt-cells = <1>;
+        interrupt-controller;
+        compatible = "riscv,cpu-intc";
+      };
+    };

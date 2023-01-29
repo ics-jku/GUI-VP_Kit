@@ -27,9 +27,9 @@ all: build
 
 get: .stamp/gui-vp_get .stamp/buildroot_get
 
-build_rv32: .stamp/gui-vp_build .stamp/buildroot_rv32_build dt/linux-vp_rv32.dtb
+build_rv32: .stamp/gui-vp_build .stamp/buildroot_rv32_build dt/linux-vp_rv32_sc.dtb dt/linux-vp_rv32_mc.dtb
 
-build_rv64: .stamp/gui-vp_build .stamp/buildroot_rv64_build dt/linux-vp_rv64.dtb
+build_rv64: .stamp/gui-vp_build .stamp/buildroot_rv64_build dt/linux-vp_rv64_sc.dtb dt/linux-vp_rv64_mc.dtb
 
 build: build_rv32 build_rv64
 
@@ -45,16 +45,32 @@ buildroot_rv64-rebuild:
 	rm -rf .stamp/buildroot_rv64_build
 	make .stamp/buildroot_rv64_build
 
-run_rv32: build_rv32
-	GUI-VP/vp/build/bin/linux32-vp				\
+build_all_dts: dt/linux-vp_rv32_sc.dts dt/linux-vp_rv64_sc.dts dt/linux-vp_rv32_mc.dts dt/linux-vp_rv64_mc.dts
+
+build_all_dtb: dt/linux-vp_rv32_sc.dtb dt/linux-vp_rv64_sc.dtb dt/linux-vp_rv32_mc.dtb dt/linux-vp_rv64_mc.dtb
+
+run_rv32_sc: build_rv32
+	GUI-VP/vp/build/bin/linux32-sc-vp			\
 		$(GUI_VP_ARGS)					\
-		--dtb-file=dt/linux-vp_rv32.dtb			\
+		--dtb-file=dt/linux-vp_rv32_sc.dtb		\
 		buildroot_rv32/output/images/fw_payload.elf
 
-run_rv64: build_rv64
+run_rv64_sc: build_rv64
+	GUI-VP/vp/build/bin/linux-sc-vp				\
+		$(GUI_VP_ARGS)					\
+		--dtb-file=dt/linux-vp_rv64_sc.dtb		\
+		buildroot_rv64/output/images/fw_payload.elf
+
+run_rv32_mc: build_rv32
+	GUI-VP/vp/build/bin/linux32-vp				\
+		$(GUI_VP_ARGS)					\
+		--dtb-file=dt/linux-vp_rv32_mc.dtb		\
+		buildroot_rv32/output/images/fw_payload.elf
+
+run_rv64_mc: build_rv64
 	GUI-VP/vp/build/bin/linux-vp				\
 		$(GUI_VP_ARGS)					\
-		--dtb-file=dt/linux-vp_rv64.dtb			\
+		--dtb-file=dt/linux-vp_rv64_mc.dtb		\
 		buildroot_rv64/output/images/fw_payload.elf
 
 clean:
@@ -132,26 +148,34 @@ distclean:
 
 ## DEVICETREE
 
-dt/linux-vp_rv32.dts: dt/linux-vp.dts.in
-	@echo " + CREATE VP RV32 DTS: $@"
-	sed $< \
-		-e "s/@RISCV_ISA@/\"rv32imafdc\"/g"	\
-		-e "s/@MMU_TYPE@/\"riscv-sv32\"/g"	\
-		-e "s/@MEM_SIZE@/0x40000000/g"		\
-		> $@
+dt/linux-vp_rv32_sc.dts: dt/linux-vp_base.dts.in dt/linux-vp_cpu.dts.in dt/gen_dts.sh
+	@echo " + CREATE VP RV32 SINGLECORE DTS: $@"
+	./dt/gen_dts.sh rv32 1 > $@
 
-dt/linux-vp_rv64.dts: dt/linux-vp.dts.in
-	@echo " + CREATE VP RV64 DTS: $@"
-	sed $< \
-		-e "s/@RISCV_ISA@/\"rv64imafdc\"/g"	\
-		-e "s/@MMU_TYPE@/\"riscv-sv48\"/g"	\
-		-e "s/@MEM_SIZE@/0x80000000/g"		\
-		> $@
+dt/linux-vp_rv64_sc.dts: dt/linux-vp_base.dts.in dt/linux-vp_cpu.dts.in dt/gen_dts.sh
+	@echo " + CREATE VP RV64 SINGLECORE DTS: $@"
+	./dt/gen_dts.sh rv64 1 > $@
 
-dt/linux-vp_rv32.dtb: dt/linux-vp_rv32.dts .stamp/buildroot_rv32_build
-	@echo " + CREATE VP RV32 DTB: $@"
+dt/linux-vp_rv32_mc.dts: dt/linux-vp_base.dts.in dt/linux-vp_cpu.dts.in dt/gen_dts.sh
+	@echo " + CREATE VP RV32 MULTICORE DTS: $@"
+	./dt/gen_dts.sh rv32 4 > $@
+
+dt/linux-vp_rv64_mc.dts: dt/linux-vp_base.dts.in dt/linux-vp_cpu.dts.in dt/gen_dts.sh
+	@echo " + CREATE VP RV64 MULTICORE DTS: $@"
+	./dt/gen_dts.sh rv64 4 > $@
+
+dt/linux-vp_rv32_sc.dtb: dt/linux-vp_rv32_sc.dts .stamp/buildroot_rv32_build
+	@echo " + CREATE VP RV32 SINGLECORE DTB: $@"
 	buildroot_rv32/output/host/bin/dtc $< -o $@
 
-dt/linux-vp_rv64.dtb: dt/linux-vp_rv64.dts .stamp/buildroot_rv64_build
-	@echo " + CREATE VP RV64 DTB: $@"
-	buildroot_rv64/output/host/bin/dtc $< -o $@
+dt/linux-vp_rv64_sc.dtb: dt/linux-vp_rv64_sc.dts .stamp/buildroot_rv64_build
+	@echo " + CREATE VP RV64 SINGLECORE DTB: $@"
+	buildroot_rv32/output/host/bin/dtc $< -o $@
+
+dt/linux-vp_rv32_mc.dtb: dt/linux-vp_rv32_mc.dts .stamp/buildroot_rv32_build
+	@echo " + CREATE VP RV32 MULTICORE DTB: $@"
+	buildroot_rv32/output/host/bin/dtc $< -o $@
+
+dt/linux-vp_rv64_mc.dtb: dt/linux-vp_rv64_mc.dts .stamp/buildroot_rv64_build
+	@echo " + CREATE VP RV64 MULTICORE DTB: $@"
+	buildroot_rv32/output/host/bin/dtc $< -o $@

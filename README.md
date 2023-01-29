@@ -16,8 +16,8 @@ The project
    * the root filesystem (based on busybox)
    * the linux kernel including the root filesystem (initramfs)
    * the openSBI bootloader (including linux kernel and root filesystem)
- * builds the device tree blobs describing the rv32 and rv64 (fu540 compatible) vps
- * can start the created rv32 and rv64 images on linux-vp(rv64) and linux32-vp(rv32)
+ * builds the device tree blobs describing the rv32 and rv64 (fu540 compatible) single- and multicore vps
+ * can start the created rv32 and rv64 images on linux-vp(rv64 multicore), linux32-vp(rv32 multicore), linux-sc-vp(rv64 singlecore) and linux32-sc-vp(rv32 singlecore)
  * supports graphics output, mouse- and keyboard-input via VNC
  * supports networking between host and system inside vp (see below)
 
@@ -48,17 +48,19 @@ A list of all useful make targets is provided by ```make help``` or simply ```ma
 ### Run
 **Note:** It can take some time until kernel output is visible (>30 seconds).
 
- * Run rv32 vp: ```make run_rv32```
- * Run rv64 vp: ```make run_rv64```
+ * Run rv32 singlecore vp: ```make run_rv32_sc```
+ * Run rv64 singlecore vp: ```make run_rv64_sc```
+ * Run rv32 multicore vp: ```make run_rv32_mc```
+ * Run rv64 multicore vp: ```make run_rv64_mc```
 
 Login with *root* and empty password.
 
-**Example (rv32):**
+**Example (rv32, singlecore):**
 ```
-$ make run_rv32
+$ make run_rv32_sc
 GUI-VP/vp/build/bin/linux32-vp                                        \
         --use-data-dmi --tlm-global-quantum=1000 --tun-device tun10   \
-        --dtb-file=dt/linux-vp_rv32.dtb                               \
+        --dtb-file=dt/linux-vp_rv32_sc.dtb                            \
         buildroot_rv32/output/images/fw_payload.elf
 
         SystemC 2.3.3-Accellera --- Aug 11 2022 14:52:20
