@@ -90,9 +90,6 @@ distclean:
 
 .stamp/gui-vp_build: .stamp/gui-vp_get
 	@echo " + BUILD RISC-V VP"
-	# support cmake 3.18 (debian 11)
-	sed -i GUI-VP/vp/CMakeLists.txt -e \
-		's/cmake_minimum_required(VERSION 3.20)/cmake_minimum_required(VERSION 3.18)/g'
 	# ensure release build
 	CMAKE_BUILD_TYPE=Release $(MAKE) vps -C GUI-VP #-j$(NPROCS) (broken)
 	@touch $@
