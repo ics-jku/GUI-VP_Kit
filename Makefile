@@ -107,7 +107,7 @@ distclean:
 .stamp/gui-vp_build: .stamp/gui-vp_get
 	@echo " + BUILD RISC-V VP"
 	# ensure release build
-	CMAKE_BUILD_TYPE=Release $(MAKE) vps -C GUI-VP #-j$(NPROCS) (broken)
+	RELEASE_BUILD=ON $(MAKE) vps -C GUI-VP #-j$(NPROCS) (broken)
 	@touch $@
 
 
