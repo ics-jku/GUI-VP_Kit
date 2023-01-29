@@ -66,6 +66,16 @@
     current-speed = <115200>;
     clock-frequency = <16000000>;
   };
+
+  framebuffer0: framebuffer@11000000 {
+    compatible = "allwinner,simple-framebuffer", "simple-framebuffer";
+    reg = <0x11000000 0x1000000>;
+    width = <800>;
+    height = <480>;
+    stride = <2400>; /* width * byte/pixel */
+    format = "r8g8b8";
+  };
+
   memory@80000000 {
     device_type = "memory";
     reg = <0x80000000 @MEM_SIZE@>;

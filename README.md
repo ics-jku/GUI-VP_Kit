@@ -134,6 +134,14 @@ buildroot login: root
  * Clean all build artefacts: ```make clean```
  * Clean everything (including downloads): ```make distclean```
 
+## VNC Framebuffer
+Riscv-vp provides graphical output via vnc.
+Any vnc client can be used to display the output.
+
+Example (on the host)
+```
+vncviewer localhost
+```
 
 ## Networking
 *GUI-VP* provides networking using [Serial Line Internet Protocol](https://en.wikipedia.org/wiki/Serial_Line_Internet_Protocol) (Slip) and [TUN/TAP](https://en.wikipedia.org/wiki/Serial_Line_Internet_Protocol). The virtual serial interface */dev/ttySIF1* provides the slip interface. The hosts *tun10* provides the corresponding tun interface.
