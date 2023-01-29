@@ -6,7 +6,7 @@
 BUILDROOT_GIT=git://git.buildroot.net/buildroot
 BUILDROOT_VERSION=2022.08.1
 RISCV_VP_GIT=https://github.com/agra-uni-bremen/riscv-vp.git
-RISCV_VP_VERSION=cdfde93dc0066a8a858db1d32c1e12427031dc81
+RISCV_VP_VERSION=94c55197c6737f18b60dfa7d00adf8b4d47c7b3f
 RISCV_VP_ARGS=\
 	--use-data-dmi			\
 	--tlm-global-quantum=1000000	\
