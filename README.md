@@ -134,13 +134,13 @@ buildroot login: root
  * Clean all build artefacts: ```make clean```
  * Clean everything (including downloads): ```make distclean```
 
-## VNC Framebuffer
-Riscv-vp provides graphical output via vnc.
+## VNC Framebuffer and Mouse
+The Riscv-vp provides graphical output and pointer(mouse) event propagation via vnc.
 Any vnc client can be used to display the output.
 
 Example (on the host)
 ```
-vncviewer localhost
+remmina vnc://localhost
 ```
 
 ## Networking

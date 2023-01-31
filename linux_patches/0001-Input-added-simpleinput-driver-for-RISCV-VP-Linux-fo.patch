@@ -1,0 +1,294 @@
+From 034ce9e8d946db227d763ac78ef833f49290921d Mon Sep 17 00:00:00 2001
+From: Manfred SCHLAEGL <manfred.schlaegl@gmx.at>
+Date: Tue, 31 Jan 2023 15:28:56 +0100
+Subject: [PATCH] Input: added simpleinput driver for RISCV-VP Linux fork
+
+This adds a simpleinput driver for the RISC-VP Linux fork.
+Currently only pointer events (ABS X/Y and 3 mouse buttons) are handled.
+Keyboard events are not implemented yet.
+
+Signed-off-by: Manfred SCHLAEGL <manfred.schlaegl@gmx.at>
+---
+ drivers/input/misc/Kconfig       |   9 ++
+ drivers/input/misc/Makefile      |   1 +
+ drivers/input/misc/simpleinput.c | 241 +++++++++++++++++++++++++++++++
+ 3 files changed, 251 insertions(+)
+ create mode 100644 drivers/input/misc/simpleinput.c
+
+diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
+index 54c116e56e9d..550aba2e8f4c 100644
+--- a/drivers/input/misc/Kconfig
++++ b/drivers/input/misc/Kconfig
+@@ -902,4 +902,13 @@ config INPUT_STPMIC1_ONKEY
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called stpmic1_onkey.
+ 
++config INPUT_SIMPLEINPUT
++	tristate "Simple input driver for riscv-vp events"
++	help
++	  Say Y to enable support of for simpleinput as it is implemented
++	  in the risc-vp ICS linux fork.
++
++	  To compile this driver as a module, choose M here: the
++	  module will be called simpleinput.
++
+ endif
+diff --git a/drivers/input/misc/Makefile b/drivers/input/misc/Makefile
+index 28dfc444f0a9..104d3ae99f83 100644
+--- a/drivers/input/misc/Makefile
++++ b/drivers/input/misc/Makefile
+@@ -87,3 +87,4 @@ obj-$(CONFIG_INPUT_WM831X_ON)		+= wm831x-on.o
+ obj-$(CONFIG_INPUT_XEN_KBDDEV_FRONTEND)	+= xen-kbdfront.o
+ obj-$(CONFIG_INPUT_YEALINK)		+= yealink.o
+ obj-$(CONFIG_INPUT_IDEAPAD_SLIDEBAR)	+= ideapad_slidebar.o
++obj-$(CONFIG_INPUT_SIMPLEINPUT)		+= simpleinput.o
+diff --git a/drivers/input/misc/simpleinput.c b/drivers/input/misc/simpleinput.c
+new file mode 100644
+index 000000000000..9db8c6f22367
+--- /dev/null
++++ b/drivers/input/misc/simpleinput.c
+@@ -0,0 +1,241 @@
++// SPDX-License-Identifier: GPL-2.0-or-later
++/*
++ * simpleinput driver
++ * Copyright (C) 2023 Manfred SCHLAEGL
++ */
++
++#include <linux/platform_device.h>
++#include <linux/input.h>
++#include <linux/interrupt.h>
++#include <linux/module.h>
++#include <linux/io.h>
++#include <linux/slab.h>
++#include <linux/of.h>
++
++/*
++ * Touchscreen controller register offsets
++ */
++
++#define REG_CTRL_PTR_ENABLE_BIT			(1<<0)
++#define REG_BUTTONMASK_PTR_DATA_AVAIL_BIT	(1<<31)
++#define REG_BUTTONMASK_PTR_MOUSE_LEFT_BIT	(1<<0)
++#define REG_BUTTONMASK_PTR_MOUSE_MIDDLE_BIT	(1<<1)
++#define REG_BUTTONMASK_PTR_MOUSE_RIGHT_BIT	(1<<2)
++
++#define REG_CTRL_PTR_ADDR			0x00
++#define REG_WIDTH_PTR_ADDR			0x04
++#define REG_HEIGHT_PTR_ADDR			0x08
++#define REG_X_PTR_ADDR				0x0c
++#define REG_Y_PTR_ADDR				0x10
++#define REG_BUTTONMASK_PTR_ADDR			0x14
++
++#define MOD_NAME "simpleinput"
++
++#define sinput_readl(dev, reg) \
++	readl((dev)->mmio_base + (reg))
++#define sinput_writel(dev, reg, val) \
++	writel((val), (dev)->mmio_base + (reg))
++
++struct simpleinput {
++	struct input_dev *dev;
++	void __iomem *mmio_base;
++	int irq;
++	uint32_t width;
++	uint32_t height;
++	uint32_t button_mask_last;
++};
++
++static irqreturn_t simpleinput_interrupt(int irq, void *dev_id)
++{
++	struct simpleinput *priv = dev_id;
++	struct input_dev *input = priv->dev;
++	uint32_t button_mask, x, y, btn_left;
++
++	do {
++		/* buttom mask must be read first -> fills x,y with data */
++		button_mask = sinput_readl(priv, REG_BUTTONMASK_PTR_ADDR);
++		x = sinput_readl(priv, REG_X_PTR_ADDR);
++		y = sinput_readl(priv, REG_Y_PTR_ADDR);
++
++		input_report_abs(input, ABS_X, x);
++		input_report_abs(input, ABS_Y, y);
++
++		if (button_mask != priv->button_mask_last) {
++			/* simply update all buttons */
++			btn_left = button_mask & REG_BUTTONMASK_PTR_MOUSE_LEFT_BIT ? 1 : 0;
++			input_report_key(input, BTN_LEFT, btn_left);
++			input_report_key(input, BTN_MIDDLE,
++					button_mask & REG_BUTTONMASK_PTR_MOUSE_MIDDLE_BIT ? 1 : 0);
++			input_report_key(input, BTN_RIGHT,
++					button_mask & REG_BUTTONMASK_PTR_MOUSE_RIGHT_BIT ? 1 : 0);
++			priv->button_mask_last = button_mask;
++		}
++
++		input_sync(input);
++
++	} while (button_mask & REG_BUTTONMASK_PTR_DATA_AVAIL_BIT);
++
++	return IRQ_HANDLED;
++}
++
++static void simpleinput_stop_ptr(struct simpleinput *priv)
++{
++	sinput_writel(priv, REG_CTRL_PTR_ADDR, 0);
++}
++
++static int simpleinput_setup_ptr(struct simpleinput *priv)
++{
++	sinput_writel(priv, REG_CTRL_PTR_ADDR, REG_CTRL_PTR_ENABLE_BIT);
++	return 0;
++}
++
++static int simpleinput_open(struct input_dev *dev)
++{
++	struct simpleinput *priv = input_get_drvdata(dev);
++	return simpleinput_setup_ptr(priv);
++}
++
++static void simpleinput_close(struct input_dev *dev)
++{
++	struct simpleinput *priv = input_get_drvdata(dev);
++	simpleinput_stop_ptr(priv);
++}
++
++static int simpleinput_probe(struct platform_device *pdev)
++{
++	struct simpleinput *priv;
++	struct input_dev *input;
++	int irq;
++	int error;
++
++	irq = platform_get_irq(pdev, 0);
++	if (irq < 0)
++		return irq;
++
++	priv = devm_kzalloc(&pdev->dev, sizeof(*priv), GFP_KERNEL);
++	if (!priv) {
++		dev_err(&pdev->dev, "failed allocating memory\n");
++		return -ENOMEM;
++	}
++
++	input = devm_input_allocate_device(&pdev->dev);
++	if (!input) {
++		dev_err(&pdev->dev, "failed to allocate input device\n");
++		return -ENOMEM;
++	}
++
++	priv->mmio_base = devm_platform_ioremap_resource(pdev, 0);
++	if (IS_ERR(priv->mmio_base)) {
++		dev_err(&pdev->dev, "failed to map mmio area\n");
++		return PTR_ERR(priv->mmio_base);
++	}
++
++	priv->button_mask_last = 0x0;
++	priv->dev = input;
++	priv->irq = irq;
++	priv->width = sinput_readl(priv, REG_WIDTH_PTR_ADDR);
++	priv->height = sinput_readl(priv, REG_HEIGHT_PTR_ADDR);
++
++	input->name = MOD_NAME;
++	input->phys = "simpleinput/input0";
++	input->id.bustype = BUS_HOST;
++	input->id.vendor = 0x0001;
++	input->id.product = 0x0002;
++	input->id.version = 0x0100;
++	input->dev.parent = &pdev->dev;
++	input->open = simpleinput_open;
++	input->close = simpleinput_close;
++
++	input_set_capability(input, EV_KEY, BTN_LEFT);
++	input_set_capability(input, EV_KEY, BTN_RIGHT);
++	input_set_capability(input, EV_KEY, BTN_MIDDLE);
++	input_set_capability(input, EV_ABS, ABS_X);
++	input_set_capability(input, EV_ABS, ABS_Y);
++	input_set_abs_params(input, ABS_X, 0, priv->width, 0, 0);
++	input_set_abs_params(input, ABS_Y, 0, priv->height, 0, 0);
++
++	input_set_drvdata(input, priv);
++
++	error = devm_request_irq(&pdev->dev, priv->irq,
++			simpleinput_interrupt, IRQF_SHARED, pdev->name, priv);
++	if (error) {
++		dev_err(&pdev->dev, "failed requesting interrupt\n");
++		return error;
++	}
++
++	error = input_register_device(input);
++	if (error) {
++		dev_err(&pdev->dev, "failed registering input device\n");
++		return error;
++	}
++
++	platform_set_drvdata(pdev, priv);
++	device_init_wakeup(&pdev->dev, 1);
++
++	return 0;
++}
++
++static int __maybe_unused simpleinput_suspend(struct device *dev)
++{
++	struct platform_device *pdev = to_platform_device(dev);
++	struct simpleinput *priv = platform_get_drvdata(pdev);
++	struct input_dev *input = priv->dev;
++
++	mutex_lock(&input->mutex);
++
++	if (input_device_enabled(input)) {
++		if (device_may_wakeup(dev))
++			enable_irq_wake(priv->irq);
++		else
++			simpleinput_stop_ptr(priv);
++	}
++
++	mutex_unlock(&input->mutex);
++
++	return 0;
++}
++
++static int __maybe_unused simpleinput_resume(struct device *dev)
++{
++	struct platform_device *pdev = to_platform_device(dev);
++	struct simpleinput *priv = platform_get_drvdata(pdev);
++	struct input_dev *input = priv->dev;
++
++	mutex_lock(&input->mutex);
++
++	if (input_device_enabled(input)) {
++		if (device_may_wakeup(dev))
++			disable_irq_wake(priv->irq);
++		else
++			simpleinput_setup_ptr(priv);
++	}
++
++	mutex_unlock(&input->mutex);
++
++	return 0;
++}
++
++static const struct dev_pm_ops simpleinput_pm_ops = {
++	SET_NOIRQ_SYSTEM_SLEEP_PM_OPS(simpleinput_suspend, simpleinput_resume)
++};
++
++static const struct of_device_id simpleinput_of_match[] = {
++	{ .compatible = "ics,simpleinput", },
++	{ },
++};
++MODULE_DEVICE_TABLE(of, simpleinput_of_match);
++
++static struct platform_driver simpleinput_driver = {
++	.probe		= simpleinput_probe,
++	.driver		= {
++		.name	= MOD_NAME,
++		.pm	= &simpleinput_pm_ops,
++		.of_match_table = of_match_ptr(simpleinput_of_match),
++	},
++};
++module_platform_driver(simpleinput_driver);
++
++MODULE_AUTHOR("Manfred SCHLAEGL <manfred.schlaegl@gmx.at>");
++MODULE_DESCRIPTION("Simpleinput Driver");
++MODULE_LICENSE("GPL");
++MODULE_ALIAS("platform:simpleinput");
+-- 
+2.30.2
+
