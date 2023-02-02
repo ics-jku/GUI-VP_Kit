@@ -147,41 +147,21 @@ remmina vnc://localhost
 *GUI-VP* provides networking using [Serial Line Internet Protocol](https://en.wikipedia.org/wiki/Serial_Line_Internet_Protocol) (Slip) and [TUN/TAP](https://en.wikipedia.org/wiki/Serial_Line_Internet_Protocol). The virtual serial interface */dev/ttySIF1* provides the slip interface. The hosts *tun10* provides the corresponding tun interface.
 
 ### Setup
-**Note:** The IP addresses must be chosen carefully to avoid conflicts in the host's network configuration.
+**Note:** The IP addresses must be chosen carefully to avoid conflicts in the host's network configuration. By default 10.0.0.1 is used for the host and 10.0.0.2 for linux running inside the vp. The addresses can be changed in ```tools/setup_host_networking.sh``` and ```buildroot_fs_overlay/etc/network/interfaces``` (buildroot rebuild necessary).
 
 **Once on the host before starting the vp (priviliges needed):**
- 1. Create a tun interface:
-    ```
-    ip tuntap add tun10 mode tun
-    ```
- 2. Configure an IP address and network mask for the interface
-    ```
-    ip addr add 10.0.0.1/24 dev tun10
-    ```
- 3. Activate the interface:
-    ```
-    ip link set tun10 up
-    ```
+```
+tools/setup_host_networking.sh
+```
+Sets up the device *tun10* with IP 10.0.0.1 and enables routing and masquerading (nat).
 
 **Inside the vp after each boot:**
- 1. Attach slip:
-    ```
-    slattach -m -p slip /dev/ttySIF1 &
-    ```
- 1. Configure the interface MTU:
-    ```
-    ip link set dev sl0 mtu 1500
-    ```
- 1. Add an IP address and network mask to the interface:
-    ```
-    ip addr add 10.0.0.2/24 peer 10.0.0.1/24 dev sl0
-    ```
- 1. Activate the interface:
-    ```
-    ip link set dev sl0 up
-    ```
+```
+ifup sl0
+```
+Sets up the slip interface *sl0* with IP 10.0.0.2, routing via 10.0.0.1 and domain name resolution (via 8.8.8.8)
 
-The host is now configured with *10.0.0.1/24*, the target with *10.0.0.2/24*.
+**Test:**
 
 To test the configuration, each side can now be pinged from the other one:
  * Ping the system inside the vp from the host
@@ -200,6 +180,15 @@ To test the configuration, each side can now be pinged from the other one:
    64 bytes from 10.0.0.1: seq=1 ttl=64 time=8.070 ms
    ...
    ```
+
+To test the domain name resultion and routing, an external site (e.g. riscv.org) can be pinged from the vp:
+```
+# ping riscv.org
+PING riscv.org (23.185.0.1): 56 data bytes
+64 bytes from 23.185.0.1: seq=0 ttl=58 time=26.976 ms
+64 bytes from 23.185.0.1: seq=1 ttl=58 time=27.261 ms
+...
+```
 
 ### Access via Telnet
 The root filesystem comes with a running telnet server.

@@ -1,0 +1,15 @@
+auto lo
+iface lo inet loopback
+
+# uncomment this for automatic configuration on boot
+# auto sl0
+iface sl0 inet static
+        address 10.0.0.2
+        netmask 255.255.255.0
+        pointopoint 10.0.0.1
+        mtu 1500
+        gateway 10.0.0.1
+
+        pre-up (nohup slattach -m -p slip /dev/ttySIF1 & sleep 2) > /dev/null 2>&1
+        post-up (echo nameserver 8.8.8.8 > /etc/resolv.conf)
+        post-down killall slattach
