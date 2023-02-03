@@ -182,6 +182,7 @@ Example: Run prboom demo (no control yet!) with 350x250 resolution
 ```
 /usr/games/prboom -width 350 -height 250
 ```
+Display stats (e.g. fps) are enabled by default.
 
 
 ## Networking
