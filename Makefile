@@ -85,6 +85,7 @@ distclean:
 	- rm -rf .stamp
 	- rm -rf buildroot_rv32 buildroot_rv64 buildroot_dl
 	- rm -rf GUI-VP
+	- rm -rf dt/*.dtb
 	- rm -rf dt/*.dts
 
 
