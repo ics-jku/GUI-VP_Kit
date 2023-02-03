@@ -144,14 +144,21 @@ remmina vnc://localhost
 ```
 
 ### Xorg
-The root filesystem comes with a modular [Xorg](https://www.x.org/wiki/) server and some some small test applications. The Xorg server is automatically started on boot.
+The root filesystem comes with a modular [Xorg](https://www.x.org/wiki/) server and some some small test applications including also the small footprint web browser [Dillo](https://www.dillo.org/). The Xorg server is automatically started on boot.
 
-Demo applications:
+Example: Start the dillo webbrowser showing a locally provided demo page:
+```
+dillo localhost
+```
+NOTE: The dillo web browser does not support https yet.
+
+Other demo applications:
  * The X logo: ```xlogo```
  * Classic X demo: ```xeyes```
  * X wall clocks: ```xclock``` and ```oclock```
  * X Calculator: ```xcalc```
  * A simple window manager: ```fluxbox```
+
 
 ### Direct framebuffer and SDL
 The root filesystem includes some applications that provide graphical output via framebuffer (directly or via [Simple DirectMedia Layer](https://www.libsdl.org/) (SDL).
@@ -175,6 +182,7 @@ Example: Run prboom demo (no control yet!) with 350x250 resolution
 ```
 /usr/games/prboom -width 350 -height 250
 ```
+
 
 ## Networking
 *GUI-VP* provides networking using [Serial Line Internet Protocol](https://en.wikipedia.org/wiki/Serial_Line_Internet_Protocol) (Slip) and [TUN/TAP](https://en.wikipedia.org/wiki/Serial_Line_Internet_Protocol). The virtual serial interface */dev/ttySIF1* provides the slip interface. The hosts *tun10* provides the corresponding tun interface.
@@ -237,6 +245,11 @@ Escape character is '^]'.
 buildroot login: root
 # 
 ```
+
+### Access via http
+The root filesystem comes with a running http server providing a simple demo page.
+Once the network is configured, the demo page can be accessed by [http://10.0.0.2](http://10.0.0.2).
+
 
 ### Mounting Network Volumes
 A working network configuration allows mounting of [Network File System](https://en.wikipedia.org/wiki/Network_File_System) (NFS) volumes provided by the host in the system running inside the vp.
