@@ -14,19 +14,19 @@ The project
  * downloads and builds [buildroot](https://buildroot.org) for rv32 and rv64, including
    * the C/C++ toolchain (gcc, glibc) (also for external use -- see below)
    * the root filesystem (based on busybox)
-   * the linux kernel including the root filesystem (initramfs)
-   * the openSBI bootloader (including linux kernel and root filesystem)
+   * the linux kernel image including the root filesystem (initramfs)
+   * the openSBI bootloader image (including linux kernel and root filesystem)
  * builds the device tree blobs describing the rv32 and rv64 (fu540 compatible) single- and multicore vps
  * can start the created rv32 and rv64 images on linux-vp(rv64 multicore), linux32-vp(rv32 multicore), linux-sc-vp(rv64 singlecore) and linux32-sc-vp(rv32 singlecore)
- * supports graphics output, mouse- and keyboard-input via VNC
- * supports networking between host and system inside vp (see below)
+ * supports graphic output and mouse input via [Virtual Network Computing](https://en.wikipedia.org/wiki/Virtual_Network_Computing) (VNC) (see below)
+ * supports networking between the host and the system inside the vp (see below)
 
 ## Build & Run
 This section explains how to build the project and boot the vp.
 
 ### Prerequisites
 
- 1. A running Linux system with at least 20GB of free disk memory and an internet connection
+ 1. A running Linux system with at least 25GB of free disk memory and an internet connection
      * The project was developed and tested on Debian 11
  2. Installed packages necessary for GUI-VP
      * see [rescv-vp README.md](https://github.com/ics-jku/GUI-VP/blob/master/README.md)
@@ -134,13 +134,46 @@ buildroot login: root
  * Clean all build artefacts: ```make clean```
  * Clean everything (including downloads): ```make distclean```
 
-## VNC Framebuffer and Mouse
-The Riscv-vp provides graphical output and pointer(mouse) event propagation via vnc.
-Any vnc client can be used to display the output.
+## Graphics (VNC Framebuffer and Mouse)
+GUI-VP provides graphical output and pointer(mouse) event propagation via VNC.
+Any VNC client (e.g. [Remmina](https://remmina.org/)) can be used.
 
 Example (on the host)
 ```
 remmina vnc://localhost
+```
+
+### Xorg
+The root filesystem comes with a modular [Xorg](https://www.x.org/wiki/) server and some some small test applications. The Xorg server is automatically started on boot.
+
+Demo applications:
+ * The X logo: ```xlogo```
+ * Classic X demo: ```xeyes```
+ * X wall clocks: ```xclock``` and ```oclock```
+ * X Calculator: ```xcalc```
+ * A simple window manager: ```fluxbox```
+
+### Direct framebuffer and SDL
+The root filesystem includes some applications that provide graphical output via framebuffer (directly or via [Simple DirectMedia Layer](https://www.libsdl.org/) (SDL).
+
+ * The framebuffer test suite: ```fb-test```
+ * Screenshot tools: ```fbdump``` and ```fbgrab```
+ * Image viewer: ```fbv```
+ * SDL Doom clone [PrBoom](https://prboom.sourceforge.net/) with Shareware WAD
+
+Before these applications can be used, the Xorg server must be stopped:
+```
+/etc/init.d/S40xorg stop
+```
+
+Example: Show the RISC-V Logo:
+```
+fbv /var/www/riscv-color.jpg
+```
+
+Example: Run prboom demo (no control yet!) with 350x250 resolution
+```
+/usr/games/prboom -width 350 -height 250
 ```
 
 ## Networking
@@ -233,7 +266,7 @@ mount 10.0.0.1:/srv/nfs_for_vp /mnt -o nolock
 The host directory */srv/nfs_for_vp* is now accessible on the system inside the vp at */mnt*.
 Changes to directory are visible in almost real time on both systems.
 
-## External use of the Toolchain
+## Using the Buildroot Toolchain for external Projects
 The C/C++ toolchain build by buildroot provides support for external use (e.g. to build own projects outside of buildroot).
 
 **To setup a running shell for cross compilation using the created toolchain:**
