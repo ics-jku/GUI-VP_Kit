@@ -1,4 +1,4 @@
-From 034ce9e8d946db227d763ac78ef833f49290921d Mon Sep 17 00:00:00 2001
+From 1adac9a27fd2c292897cc163b125a30eeba16e04 Mon Sep 17 00:00:00 2001
 From: Manfred SCHLAEGL <manfred.schlaegl@gmx.at>
 Date: Tue, 31 Jan 2023 15:28:56 +0100
 Subject: [PATCH] Input: added simpleinput driver for RISCV-VP Linux fork
@@ -11,8 +11,8 @@ Signed-off-by: Manfred SCHLAEGL <manfred.schlaegl@gmx.at>
 ---
  drivers/input/misc/Kconfig       |   9 ++
  drivers/input/misc/Makefile      |   1 +
- drivers/input/misc/simpleinput.c | 241 +++++++++++++++++++++++++++++++
- 3 files changed, 251 insertions(+)
+ drivers/input/misc/simpleinput.c | 239 +++++++++++++++++++++++++++++++
+ 3 files changed, 249 insertions(+)
  create mode 100644 drivers/input/misc/simpleinput.c
 
 diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
@@ -44,10 +44,10 @@ index 28dfc444f0a9..104d3ae99f83 100644
 +obj-$(CONFIG_INPUT_SIMPLEINPUT)		+= simpleinput.o
 diff --git a/drivers/input/misc/simpleinput.c b/drivers/input/misc/simpleinput.c
 new file mode 100644
-index 000000000000..9db8c6f22367
+index 000000000000..e2b3a65ed81c
 --- /dev/null
 +++ b/drivers/input/misc/simpleinput.c
-@@ -0,0 +1,241 @@
+@@ -0,0 +1,239 @@
 +// SPDX-License-Identifier: GPL-2.0-or-later
 +/*
 + * simpleinput driver
@@ -189,9 +189,6 @@ index 000000000000..9db8c6f22367
 +	input->name = MOD_NAME;
 +	input->phys = "simpleinput/input0";
 +	input->id.bustype = BUS_HOST;
-+	input->id.vendor = 0x0001;
-+	input->id.product = 0x0002;
-+	input->id.version = 0x0100;
 +	input->dev.parent = &pdev->dev;
 +	input->open = simpleinput_open;
 +	input->close = simpleinput_close;
@@ -206,8 +203,9 @@ index 000000000000..9db8c6f22367
 +
 +	input_set_drvdata(input, priv);
 +
-+	error = devm_request_irq(&pdev->dev, priv->irq,
-+			simpleinput_interrupt, IRQF_SHARED, pdev->name, priv);
++	error = devm_request_threaded_irq(&pdev->dev, priv->irq,
++			NULL, simpleinput_interrupt, IRQF_ONESHOT,
++			pdev->name, priv);
 +	if (error) {
 +		dev_err(&pdev->dev, "failed requesting interrupt\n");
 +		return error;
