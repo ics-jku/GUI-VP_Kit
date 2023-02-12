@@ -1,0 +1,103 @@
+From 5a283f01844073d1744b76669417807a7a5c5a2f Mon Sep 17 00:00:00 2001
+From: Manfred SCHLAEGL <manfred.schlaegl@gmx.at>
+Date: Fri, 10 Feb 2023 12:22:11 +0100
+Subject: [PATCH 1/2] Stats: Print fps stats on console
+
+Periodically calulate frames per second and print statistics
+(current, avg, min, max) on the console.
+---
+ src/r_main.c | 71 +++++++++++++++++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 70 insertions(+), 1 deletion(-)
+
+diff --git a/src/r_main.c b/src/r_main.c
+index cab5997..df5d78e 100644
+--- a/src/r_main.c
++++ b/src/r_main.c
+@@ -532,7 +532,75 @@ int autodetect_hom = 0;       // killough 2/7/98: HOM autodetection flag
+ // R_ShowStats
+ //
+ int rendered_visplanes, rendered_segs, rendered_vissprites;
+-boolean rendering_stats;
++/* enable stats by default */
++boolean rendering_stats = 0;
++
++#define STATS2_WARMUP_MS  (10*1000)
++#define STATS2_INIT       0
++#define STATS2_WARMUP     1
++#define STATS2_RUNNING    2
++int stats2_state = STATS2_INIT;
++
++/* Works only with SDL and on RISC-V! */
++static void R_ShowStats2(void)
++{
++  static unsigned int startTick, lastTick;
++  static unsigned int lastFrameCount, curFrameCount;
++  static unsigned int max_mfps = 0;
++  static unsigned int min_mfps = 100000;
++  unsigned int curTick, cur_mfps, avg_mfps;
++
++  /* get time since start of SDL in ms */
++  curTick = SDL_GetTicks();
++
++  if (stats2_state == STATS2_INIT) {
++    /* start warmup phase */
++    startTick = curTick + STATS2_WARMUP_MS;
++    stats2_state = STATS2_WARMUP;
++    printf("STAT: INIT -> START WARMUP\n");
++    return;
++
++  } else if (stats2_state == STATS2_WARMUP) {
++    /* warmup phase completed ?*/
++    if (curTick < startTick) {
++      return;
++    }
++    printf("STAT: WARMUP COMPLETE -> RUNNING\n");
++    /* yes -> record start & running */
++    curTick = SDL_GetTicks();
++    startTick = curTick;
++    lastTick = startTick;
++    stats2_state = STATS2_RUNNING;
++  }
++
++  /* stat2_state == STATS2_RUNNING */
++
++  /* update frames */
++  curFrameCount++;
++
++  /* update and print stats every second */
++  if (curTick < lastTick + 1000) {
++    return;
++  }
++
++  /* calc milli fps */
++  cur_mfps = (1000 * 1000 * (curFrameCount - lastFrameCount)) / (curTick - lastTick);
++  if (cur_mfps > max_mfps) {
++    max_mfps = cur_mfps;
++  }
++  if (cur_mfps < min_mfps) {
++    min_mfps = cur_mfps;
++  }
++  avg_mfps = (1000 * 1000 * curFrameCount) / (curTick - startTick);
++
++  /* remember last */
++  lastFrameCount = curFrameCount;
++  lastTick = curTick;
++
++  /* print stats to console */
++  printf("STAT: cur_mfps = %d, avg_mfps = %d, min_mfps = %d, max_mfps = %d\n",
++    cur_mfps, avg_mfps, min_mfps, max_mfps);
++}
+ 
+ static void R_ShowStats(void)
+ {
+@@ -644,6 +712,7 @@ void R_RenderPlayerView (player_t* player)
+   }
+ 
+   if (rendering_stats) R_ShowStats();
++  R_ShowStats2();
+ 
+   R_RestoreInterpolations();
+ }
+-- 
+2.30.2
+

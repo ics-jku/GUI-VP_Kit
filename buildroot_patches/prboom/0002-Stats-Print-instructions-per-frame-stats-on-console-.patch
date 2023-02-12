@@ -1,0 +1,136 @@
+From d9c83a13cf4f103b7cd588a163a70e85301d10e8 Mon Sep 17 00:00:00 2001
+From: Manfred SCHLAEGL <manfred.schlaegl@gmx.at>
+Date: Fri, 10 Feb 2023 13:23:05 +0100
+Subject: [PATCH 2/2] Stats: Print instructions per frame stats on console
+ (WIP)
+
+Extended stats to also periodically print the number of instructions
+per frame (current, avg, min, max) to the console.
+
+The current cores instRet CSRs are used for this ->
+THE SHOWN VALUES ARE ONLY VALID FOR SINGLE CORE!!!
+---
+ src/r_main.c | 65 ++++++++++++++++++++++++++++++++++++++++++++++++----
+ 1 file changed, 61 insertions(+), 4 deletions(-)
+
+diff --git a/src/r_main.c b/src/r_main.c
+index df5d78e..72d42e0 100644
+--- a/src/r_main.c
++++ b/src/r_main.c
+@@ -59,6 +59,8 @@
+ #include "r_demo.h"
+ #include "r_fps.h"
+ 
++#include <stdint.h>
++
+ // Fineangles in the SCREENWIDTH wide window.
+ #define FIELDOFVIEW 2048
+ 
+@@ -535,20 +537,58 @@ int rendered_visplanes, rendered_segs, rendered_vissprites;
+ /* enable stats by default */
+ boolean rendering_stats = 0;
+ 
++/* NOTE: ShowStats2 works only with SDL and on RISC-V! */
++
+ #define STATS2_WARMUP_MS  (10*1000)
+ #define STATS2_INIT       0
+ #define STATS2_WARMUP     1
+ #define STATS2_RUNNING    2
+ int stats2_state = STATS2_INIT;
+ 
+-/* Works only with SDL and on RISC-V! */
++static uint64_t getInstrCount()
++{
++#ifdef __riscv
++#if __riscv_xlen == 32
++  /* RV32 */
++  uint32_t tmp, minstreth, minstret;
++  asm volatile ("csrr %0, instreth" : "=r" (tmp));
++  do {
++    minstreth = tmp;
++    asm volatile ("csrr %0, instret" : "=r" (minstret));
++
++    /* re-read on overrun of instret */
++    asm volatile ("csrr %0, instreth" : "=r" (tmp));
++  } while (tmp != minstreth);
++  return (uint64_t)minstreth << 32 | minstret;
++
++#elif __riscv_xlen == 64
++  /* RV64 */
++  uint64_t minstret;
++  asm volatile ("csrr %0, instret" : "=r" (minstret));
++  return minstret;
++
++#else /* __riscv_xlen */
++  /* not supported yet */
++  return 0;
++#endif
++
++#else /* __riscv */
++  /* not supported yet */
++  return 0;
++#endif
++}
++
+ static void R_ShowStats2(void)
+ {
+   static unsigned int startTick, lastTick;
+   static unsigned int lastFrameCount, curFrameCount;
+   static unsigned int max_mfps = 0;
+   static unsigned int min_mfps = 100000;
++  static uint64_t startInstrCount, lastInstrCount, instrCount;
++  static uint64_t max_ipf = 0;
++  static uint64_t min_ipf = UINT64_MAX;
+   unsigned int curTick, cur_mfps, avg_mfps;
++  uint64_t curInstrCount, cur_ipf, avg_ipf;
+ 
+   /* get time since start of SDL in ms */
+   curTick = SDL_GetTicks();
+@@ -567,10 +607,12 @@ static void R_ShowStats2(void)
+     }
+     printf("STAT: WARMUP COMPLETE -> RUNNING\n");
+     /* yes -> record start & running */
+-    curTick = SDL_GetTicks();
+-    startTick = curTick;
++    startTick = SDL_GetTicks();
+     lastTick = startTick;
++    startInstrCount = getInstrCount();
++    lastInstrCount = startInstrCount;
+     stats2_state = STATS2_RUNNING;
++    return;
+   }
+ 
+   /* stat2_state == STATS2_RUNNING */
+@@ -593,13 +635,28 @@ static void R_ShowStats2(void)
+   }
+   avg_mfps = (1000 * 1000 * curFrameCount) / (curTick - startTick);
+ 
++  /* calculate instructions per frame */
++  curInstrCount = getInstrCount();
++  cur_ipf = (curInstrCount - lastInstrCount) / (curFrameCount - lastFrameCount);
++  if (cur_ipf > max_ipf) {
++    max_ipf = cur_ipf;
++  }
++  if (cur_ipf < min_ipf) {
++    min_ipf = cur_ipf;
++  }
++  avg_ipf = (curInstrCount - startInstrCount) / curFrameCount;
++
+   /* remember last */
+   lastFrameCount = curFrameCount;
++  lastInstrCount = curInstrCount;
+   lastTick = curTick;
+ 
+   /* print stats to console */
+-  printf("STAT: cur_mfps = %d, avg_mfps = %d, min_mfps = %d, max_mfps = %d\n",
++  printf("STAT:\n");
++  printf(" * cur_mfps = %d, avg_mfps = %d, min_mfps = %d, max_mfps = %d\n",
+     cur_mfps, avg_mfps, min_mfps, max_mfps);
++  printf(" * cur_ipf = %lld, avg_ipf = %lld, min_ipf = %lld, max_ipf = %lld\n",
++    cur_ipf, avg_ipf, min_ipf, max_ipf);
+ }
+ 
+ static void R_ShowStats(void)
+-- 
+2.30.2
+

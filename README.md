@@ -182,7 +182,21 @@ Example: Run prboom demo (no control yet!) with 350x250 resolution
 ```
 /usr/games/prboom -width 350 -height 250
 ```
-Display stats (e.g. fps) are enabled by default.
+
+prboom has been extended to output statistics about frames per second (milli fps) and instructions per frame (ipf) on the console. Here an example of of prboom statistics output on linux-rv32-sc:
+```
+...
+STAT: INIT -> START WARMUP
+STAT: WARMUP COMPLETE -> RUNNING
+STAT:
+ * cur_mfps = 5484, avg_mfps = 5522, min_mfps = 5484, max_mfps = 5560
+ * cur_ipf = 3664832, avg_ipf = 3649438, min_ipf = 3634044, max_ipf = 3664832
+STAT:
+ * cur_mfps = 5519, avg_mfps = 5137, min_mfps = 3872, max_mfps = 5639
+ * cur_ipf = 3531341, avg_ipf = 3862197, min_ipf = 3531341, max_ipf = 4832150
+...
+```
+NOTE: Statistics on instructions per frame (ipf) are only valid for single core VPs!
 
 
 ## Networking
