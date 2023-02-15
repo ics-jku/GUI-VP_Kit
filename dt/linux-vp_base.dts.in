@@ -72,8 +72,8 @@
     reg = <0x11000000 0x1000000>;
     width = <800>;
     height = <480>;
-    stride = <2400>; /* width * byte/pixel */
-    format = "r8g8b8";
+    stride = <1600>; /* width * byte/pixel */
+    format = "r5g6b5";
   };
 
   simpleinput0: simpleinput@12000000 {
