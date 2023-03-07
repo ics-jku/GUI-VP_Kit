@@ -1,4 +1,4 @@
-From 1adac9a27fd2c292897cc163b125a30eeba16e04 Mon Sep 17 00:00:00 2001
+From 2c73387ae2694ab4b1196d41eacc6346386858d1 Mon Sep 17 00:00:00 2001
 From: Manfred SCHLAEGL <manfred.schlaegl@gmx.at>
 Date: Tue, 31 Jan 2023 15:28:56 +0100
 Subject: [PATCH] Input: added simpleinput driver for RISCV-VP Linux fork
@@ -44,7 +44,7 @@ index 28dfc444f0a9..104d3ae99f83 100644
 +obj-$(CONFIG_INPUT_SIMPLEINPUT)		+= simpleinput.o
 diff --git a/drivers/input/misc/simpleinput.c b/drivers/input/misc/simpleinput.c
 new file mode 100644
-index 000000000000..e2b3a65ed81c
+index 000000000000..8516e02de65c
 --- /dev/null
 +++ b/drivers/input/misc/simpleinput.c
 @@ -0,0 +1,239 @@
@@ -99,7 +99,7 @@ index 000000000000..e2b3a65ed81c
 +{
 +	struct simpleinput *priv = dev_id;
 +	struct input_dev *input = priv->dev;
-+	uint32_t button_mask, x, y, btn_left;
++	uint32_t button_mask, x, y;
 +
 +	do {
 +		/* buttom mask must be read first -> fills x,y with data */
@@ -112,8 +112,8 @@ index 000000000000..e2b3a65ed81c
 +
 +		if (button_mask != priv->button_mask_last) {
 +			/* simply update all buttons */
-+			btn_left = button_mask & REG_BUTTONMASK_PTR_MOUSE_LEFT_BIT ? 1 : 0;
-+			input_report_key(input, BTN_LEFT, btn_left);
++			input_report_key(input, BTN_LEFT,
++					button_mask & REG_BUTTONMASK_PTR_MOUSE_LEFT_BIT ? 1 : 0);
 +			input_report_key(input, BTN_MIDDLE,
 +					button_mask & REG_BUTTONMASK_PTR_MOUSE_MIDDLE_BIT ? 1 : 0);
 +			input_report_key(input, BTN_RIGHT,
