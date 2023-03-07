@@ -1,4 +1,4 @@
-From 8cf5e8765b44170f5ffdd05ec195b94980d255b8 Mon Sep 17 00:00:00 2001
+From 30319f7053876dc989ad5e817f20769c6d85687d Mon Sep 17 00:00:00 2001
 From: Manfred SCHLAEGL <manfred.schlaegl@gmx.at>
 Date: Tue, 31 Jan 2023 15:28:56 +0100
 Subject: [PATCH 1/2] Input: added simpleinputptr mouse driver for GUI-VP
@@ -10,8 +10,8 @@ Signed-off-by: Manfred SCHLAEGL <manfred.schlaegl@gmx.at>
 ---
  drivers/input/mouse/Kconfig          |   9 +
  drivers/input/mouse/Makefile         |   1 +
- drivers/input/mouse/simpleinputptr.c | 237 +++++++++++++++++++++++++++
- 3 files changed, 247 insertions(+)
+ drivers/input/mouse/simpleinputptr.c | 243 +++++++++++++++++++++++++++
+ 3 files changed, 253 insertions(+)
  create mode 100644 drivers/input/mouse/simpleinputptr.c
 
 diff --git a/drivers/input/mouse/Kconfig b/drivers/input/mouse/Kconfig
@@ -46,10 +46,10 @@ index e49f08565076..41793982bca6 100644
  psmouse-objs := psmouse-base.o synaptics.o focaltech.o
 diff --git a/drivers/input/mouse/simpleinputptr.c b/drivers/input/mouse/simpleinputptr.c
 new file mode 100644
-index 000000000000..7e182e6d6257
+index 000000000000..99f3e48bdba1
 --- /dev/null
 +++ b/drivers/input/mouse/simpleinputptr.c
-@@ -0,0 +1,237 @@
+@@ -0,0 +1,243 @@
 +// SPDX-License-Identifier: GPL-2.0-or-later
 +/*
 + * simpleinputptr driver
@@ -101,9 +101,16 @@ index 000000000000..7e182e6d6257
 +	struct input_dev *input = priv->dev;
 +	uint32_t button_mask, x, y;
 +
-+	do {
-+		/* buttom mask must be read first -> fills x,y with data */
++	while (true) {
++		/* buttom mask must be read first. It carries the avail
++		 * bit and fills x,y with data.
++		 */
 +		button_mask = sinputptr_readl(priv, REG_BUTTONMASK_ADDR);
++		if ((button_mask & REG_BUTTONMASK_DATA_AVAIL_BIT) == 0) {
++			/* no more events */
++			break;
++		}
++
 +		x = sinputptr_readl(priv, REG_X_ADDR);
 +		y = sinputptr_readl(priv, REG_Y_ADDR);
 +
@@ -122,8 +129,7 @@ index 000000000000..7e182e6d6257
 +		}
 +
 +		input_sync(input);
-+
-+	} while (button_mask & REG_BUTTONMASK_DATA_AVAIL_BIT);
++	}
 +
 +	return IRQ_HANDLED;
 +}
