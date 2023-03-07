@@ -76,11 +76,11 @@
     format = "r5g6b5";
   };
 
-  simpleinput0: simpleinput@12000000 {
+  simpleinputptr0: simpleinputptr@12000000 {
     reg = <0x12000000 0x0000fff>;
     interrupt-parent = <&plic>;
     interrupts = <10>;
-    compatible = "ics,simpleinput";
+    compatible = "ics,simpleinputptr";
   };
 
   memory@80000000 {
