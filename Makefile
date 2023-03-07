@@ -6,7 +6,7 @@
 BUILDROOT_GIT=git://git.buildroot.net/buildroot
 BUILDROOT_VERSION=2022.11.1
 GUI_VP_GIT=git@github.com:ics-jku/GUI-VP.git
-GUI_VP_VERSION=GUI-VP_glsvlsi_2023
+GUI_VP_VERSION=master
 GUI_VP_ARGS=\
 	--use-data-dmi			\
 	--tlm-global-quantum=1000000	\
