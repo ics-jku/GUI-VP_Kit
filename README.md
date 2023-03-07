@@ -18,7 +18,7 @@ The project
    * the openSBI bootloader image (including linux kernel and root filesystem)
  * builds the device tree blobs describing the rv32 and rv64 (fu540 compatible) single- and multicore vps
  * can start the created rv32 and rv64 images on linux-vp(rv64 multicore), linux32-vp(rv32 multicore), linux-sc-vp(rv64 singlecore) and linux32-sc-vp(rv32 singlecore)
- * supports graphic output and mouse input via [Virtual Network Computing](https://en.wikipedia.org/wiki/Virtual_Network_Computing) (VNC) (see below)
+ * supports graphic output, mouse- and keyboard input via [Virtual Network Computing](https://en.wikipedia.org/wiki/Virtual_Network_Computing) (VNC) (see below)
  * supports networking between the host and the system inside the vp (see below)
 
 ## Build & Run
@@ -135,7 +135,7 @@ buildroot login: root
  * Clean everything (including downloads): ```make distclean```
 
 ## Graphics (VNC Framebuffer and Mouse)
-GUI-VP provides graphical output and pointer(mouse) event propagation via VNC.
+GUI-VP provides graphical output and pointer(mouse)/keyboard event propagation via VNC.
 Any VNC client (e.g. [Remmina](https://remmina.org/)) can be used.
 
 Example (on the host)

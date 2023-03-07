@@ -83,6 +83,13 @@
     compatible = "ics,simpleinputptr";
   };
 
+  simpleinputkbd0: simpleinputkbd@12001000 {
+    reg = <0x12001000 0x0000fff>;
+    interrupt-parent = <&plic>;
+    interrupts = <11>;
+    compatible = "ics,simpleinputkbd";
+  };
+
   memory@80000000 {
     device_type = "memory";
     reg = <0x80000000 @MEM_SIZE@>;

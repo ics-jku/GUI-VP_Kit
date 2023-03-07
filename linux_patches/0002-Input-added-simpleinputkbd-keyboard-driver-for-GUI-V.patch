@@ -1,0 +1,269 @@
+From 836e790c1be4dda94d3eb59f45b98a9dffdfb097 Mon Sep 17 00:00:00 2001
+From: Manfred SCHLAEGL <manfred.schlaegl@gmx.at>
+Date: Tue, 7 Mar 2023 13:29:49 +0100
+Subject: [PATCH 2/2] Input: added simpleinputkbd keyboard driver for GUI-VP
+
+This adds the simpleinputkbd driver as implemented in GUI-VP.
+
+Signed-off-by: Manfred SCHLAEGL <manfred.schlaegl@gmx.at>
+---
+ drivers/input/keyboard/Kconfig          |   9 +
+ drivers/input/keyboard/Makefile         |   1 +
+ drivers/input/keyboard/simpleinputkbd.c | 218 ++++++++++++++++++++++++
+ 3 files changed, 228 insertions(+)
+ create mode 100644 drivers/input/keyboard/simpleinputkbd.c
+
+diff --git a/drivers/input/keyboard/Kconfig b/drivers/input/keyboard/Kconfig
+index a20ee693b22b..867d5c12ea2b 100644
+--- a/drivers/input/keyboard/Kconfig
++++ b/drivers/input/keyboard/Kconfig
+@@ -812,4 +812,13 @@ config KEYBOARD_CYPRESS_SF
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called cypress-sf.
+ 
++config KEYBOARD_SIMPLEINPUT
++	tristate "Simpleinput keyboard driver for GUI-VP"
++	help
++	  Say Y to enable support for simpleinputkbd as it is implemented
++	  in GUI-VP
++
++	  To compile this driver as a module, choose M here: the
++	  module will be called simpleinputkbd.
++
+ endif
+diff --git a/drivers/input/keyboard/Makefile b/drivers/input/keyboard/Makefile
+index 721936e90290..1a6405e082e1 100644
+--- a/drivers/input/keyboard/Makefile
++++ b/drivers/input/keyboard/Makefile
+@@ -72,3 +72,4 @@ obj-$(CONFIG_KEYBOARD_TEGRA)		+= tegra-kbc.o
+ obj-$(CONFIG_KEYBOARD_TM2_TOUCHKEY)	+= tm2-touchkey.o
+ obj-$(CONFIG_KEYBOARD_TWL4030)		+= twl4030_keypad.o
+ obj-$(CONFIG_KEYBOARD_XTKBD)		+= xtkbd.o
++obj-$(CONFIG_KEYBOARD_SIMPLEINPUT)	+= simpleinputkbd.o
+diff --git a/drivers/input/keyboard/simpleinputkbd.c b/drivers/input/keyboard/simpleinputkbd.c
+new file mode 100644
+index 000000000000..43a63f0747ce
+--- /dev/null
++++ b/drivers/input/keyboard/simpleinputkbd.c
+@@ -0,0 +1,218 @@
++// SPDX-License-Identifier: GPL-2.0-or-later
++/*
++ * simpleinputkbd driver
++ * Copyright (C) 2023 Manfred SCHLAEGL
++ */
++
++#include <linux/platform_device.h>
++#include <linux/input.h>
++#include <linux/interrupt.h>
++#include <linux/module.h>
++#include <linux/io.h>
++#include <linux/slab.h>
++#include <linux/of.h>
++
++/* Registers and Bits */
++#define REG_CTRL_ADDR			0x00
++#define REG_KEY_ADDR			0x04
++
++#define REG_CTRL_ENABLE_BIT		(1<<0)
++#define REG_KEY_DATA_AVAIL_BIT		(1<<31)
++#define REG_KEY_PRESSED_BIT		(1<<0)
++#define REG_KEY_CODE_MASK		(0x7FFFFFFE)
++#define REG_KEY_CODE_SHIFT		(1)
++
++
++#define MOD_NAME "simpleinputkbd"
++
++#define sinputkbd_readl(dev, reg) \
++	readl((dev)->mmio_base + (reg))
++#define sinputkbd_writel(dev, reg, val) \
++	writel((val), (dev)->mmio_base + (reg))
++
++struct simpleinputkbd {
++	struct input_dev *dev;
++	void __iomem *mmio_base;
++	int irq;
++};
++
++static irqreturn_t simpleinputkbd_interrupt(int irq, void *dev_id)
++{
++	struct simpleinputkbd *priv = dev_id;
++	struct input_dev *input = priv->dev;
++	uint32_t key;
++
++	while(true) {
++		key = sinputkbd_readl(priv, REG_KEY_ADDR);
++		if ((key & REG_KEY_DATA_AVAIL_BIT) == 0) {
++			/* no more events */
++			break;
++		}
++
++		input_report_key(input,
++				(key & REG_KEY_CODE_MASK) >> REG_KEY_CODE_SHIFT,
++				(key & REG_KEY_PRESSED_BIT) ? 1 : 0);
++		input_sync(input);
++	}
++
++	return IRQ_HANDLED;
++}
++
++static void simpleinputkbd_stop_ptr(struct simpleinputkbd *priv)
++{
++	sinputkbd_writel(priv, REG_CTRL_ADDR, 0);
++}
++
++static int simpleinputkbd_setup_ptr(struct simpleinputkbd *priv)
++{
++	sinputkbd_writel(priv, REG_CTRL_ADDR, REG_CTRL_ENABLE_BIT);
++	return 0;
++}
++
++static int simpleinputkbd_open(struct input_dev *dev)
++{
++	struct simpleinputkbd *priv = input_get_drvdata(dev);
++	return simpleinputkbd_setup_ptr(priv);
++}
++
++static void simpleinputkbd_close(struct input_dev *dev)
++{
++	struct simpleinputkbd *priv = input_get_drvdata(dev);
++	simpleinputkbd_stop_ptr(priv);
++}
++
++static int simpleinputkbd_probe(struct platform_device *pdev)
++{
++	struct simpleinputkbd *priv;
++	struct input_dev *input;
++	int irq;
++	int error;
++
++	irq = platform_get_irq(pdev, 0);
++	if (irq < 0)
++		return irq;
++
++	priv = devm_kzalloc(&pdev->dev, sizeof(*priv), GFP_KERNEL);
++	if (!priv) {
++		dev_err(&pdev->dev, "failed allocating memory\n");
++		return -ENOMEM;
++	}
++
++	input = devm_input_allocate_device(&pdev->dev);
++	if (!input) {
++		dev_err(&pdev->dev, "failed to allocate input device\n");
++		return -ENOMEM;
++	}
++
++	priv->mmio_base = devm_platform_ioremap_resource(pdev, 0);
++	if (IS_ERR(priv->mmio_base)) {
++		dev_err(&pdev->dev, "failed to map mmio area\n");
++		return PTR_ERR(priv->mmio_base);
++	}
++
++	priv->dev = input;
++	priv->irq = irq;
++
++	input->name = MOD_NAME;
++	input->phys = "simpleinputkbd/input0";
++	input->id.bustype = BUS_HOST;
++	input->dev.parent = &pdev->dev;
++	input->open = simpleinputkbd_open;
++	input->close = simpleinputkbd_close;
++
++	for (int key_code = 1; key_code < 256 ; key_code++) {
++		input_set_capability(input, EV_KEY, key_code);
++	}
++	//input_set_capability(input, EV_KEY, BTN_RIGHT);
++	//input_set_capability(input, EV_KEY, BTN_MIDDLE);
++	//input_set_capability(input, EV_ABS, ABS_X);
++	//input_set_capability(input, EV_ABS, ABS_Y);
++	//input_set_abs_params(input, ABS_X, 0, priv->width, 0, 0);
++	//input_set_abs_params(input, ABS_Y, 0, priv->height, 0, 0);
++
++	input_set_drvdata(input, priv);
++
++	error = devm_request_threaded_irq(&pdev->dev, priv->irq,
++			NULL, simpleinputkbd_interrupt, IRQF_ONESHOT,
++			pdev->name, priv);
++	if (error) {
++		dev_err(&pdev->dev, "failed requesting interrupt\n");
++		return error;
++	}
++
++	error = input_register_device(input);
++	if (error) {
++		dev_err(&pdev->dev, "failed registering input device\n");
++		return error;
++	}
++
++	platform_set_drvdata(pdev, priv);
++	device_init_wakeup(&pdev->dev, 1);
++
++	return 0;
++}
++
++static int __maybe_unused simpleinputkbd_suspend(struct device *dev)
++{
++	struct platform_device *pdev = to_platform_device(dev);
++	struct simpleinputkbd *priv = platform_get_drvdata(pdev);
++	struct input_dev *input = priv->dev;
++
++	mutex_lock(&input->mutex);
++
++	if (input_device_enabled(input)) {
++		if (device_may_wakeup(dev))
++			enable_irq_wake(priv->irq);
++		else
++			simpleinputkbd_stop_ptr(priv);
++	}
++
++	mutex_unlock(&input->mutex);
++
++	return 0;
++}
++
++static int __maybe_unused simpleinputkbd_resume(struct device *dev)
++{
++	struct platform_device *pdev = to_platform_device(dev);
++	struct simpleinputkbd *priv = platform_get_drvdata(pdev);
++	struct input_dev *input = priv->dev;
++
++	mutex_lock(&input->mutex);
++
++	if (input_device_enabled(input)) {
++		if (device_may_wakeup(dev))
++			disable_irq_wake(priv->irq);
++		else
++			simpleinputkbd_setup_ptr(priv);
++	}
++
++	mutex_unlock(&input->mutex);
++
++	return 0;
++}
++
++static const struct dev_pm_ops simpleinputkbd_pm_ops = {
++	SET_NOIRQ_SYSTEM_SLEEP_PM_OPS(simpleinputkbd_suspend, simpleinputkbd_resume)
++};
++
++static const struct of_device_id simpleinputkbd_of_match[] = {
++	{ .compatible = "ics,simpleinputkbd", },
++	{ },
++};
++MODULE_DEVICE_TABLE(of, simpleinputkbd_of_match);
++
++static struct platform_driver simpleinputkbd_driver = {
++	.probe		= simpleinputkbd_probe,
++	.driver		= {
++		.name	= MOD_NAME,
++		.pm	= &simpleinputkbd_pm_ops,
++		.of_match_table = of_match_ptr(simpleinputkbd_of_match),
++	},
++};
++module_platform_driver(simpleinputkbd_driver);
++
++MODULE_AUTHOR("Manfred SCHLAEGL <manfred.schlaegl@gmx.at>");
++MODULE_DESCRIPTION("Simpleinput Driver");
++MODULE_LICENSE("GPL");
++MODULE_ALIAS("platform:simpleinputkbd");
+-- 
+2.30.2
+
