@@ -12,7 +12,7 @@
   };
 
   chosen {
-    bootargs = "earlycon=sbi";
+    bootargs = "earlycon=sbi root=/dev/mtdblock0 rootfstype=romfs ro";
     stdout-path = &uart0;
   };
 
@@ -88,6 +88,20 @@
     interrupt-parent = <&plic>;
     interrupts = <11>;
     compatible = "ics,simpleinputkbd";
+  };
+
+  mram_rootfs: mram@40000000 {
+    reg = <0x40000000 @MRAM_SIZE@>;
+    bank-width = <4>;
+    compatible = "mtd-ram";
+
+    #address-cells = <1>;
+    #size-cells = <1>;
+
+    rootfs@0 {
+      label = "rootfs";
+      reg = <0x00000000 @MRAM_SIZE@>;
+    };
   };
 
   memory@80000000 {

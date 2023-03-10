@@ -7,10 +7,12 @@ BUILDROOT_GIT=git://git.buildroot.net/buildroot
 BUILDROOT_VERSION=2022.11.1
 GUI_VP_GIT=git@github.com:ics-jku/GUI-VP.git
 GUI_VP_VERSION=master
+MRAM_IMAGE_DIR=runtime_mram
 GUI_VP_ARGS=\
-	--use-data-dmi			\
-	--tlm-global-quantum=1000000	\
-	--tun-device tun10
+	--use-data-dmi						\
+	--tlm-global-quantum=1000000				\
+	--tun-device tun10					\
+	--mram-root-image $(MRAM_IMAGE_DIR)/mram_root.img
 DTC="buildroot_rv32/output/host/bin/dtc"
 
 .PHONY: help all get dtb build_rv32 build_rv64 build vp-rebuild \
@@ -28,8 +30,12 @@ all: build
 get: .stamp/gui-vp_get .stamp/buildroot_get
 
 build_rv32: .stamp/gui-vp_build .stamp/buildroot_rv32_build dt/linux-vp_rv32_sc.dtb dt/linux-vp_rv32_mc.dtb
+	mkdir -p $(MRAM_IMAGE_DIR)
+	cp buildroot_rv32/output/images/rootfs.romfs $(MRAM_IMAGE_DIR)/mram_root.img
 
 build_rv64: .stamp/gui-vp_build .stamp/buildroot_rv64_build dt/linux-vp_rv64_sc.dtb dt/linux-vp_rv64_mc.dtb
+	mkdir -p $(MRAM_IMAGE_DIR)
+	cp buildroot_rv64/output/images/rootfs.romfs $(MRAM_IMAGE_DIR)/mram_root.img
 
 build: build_rv32 build_rv64
 

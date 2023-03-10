@@ -12,11 +12,17 @@ cd $(dirname $0)
 if [[ $TYPE == rv32 ]] ; then
 	RISCV_ISA="rv32imafdc"
 	MMU_TYPE="riscv-sv32"
-	MEM_SIZE="0x40000000"
+	MEM_SIZE="0x40000000"	# 1 GiB
+
+	# on RV32 linux vmalloc size is very limited
+	# -> only small memory areas (images sizes) possible
+	MRAM_SIZE="0x4000000"	# 64MiB
+
 elif [[ $TYPE == rv64 ]] ; then
 	RISCV_ISA="rv64imafdc"
 	MMU_TYPE="riscv-sv48"
-	MEM_SIZE="0x80000000"
+	MEM_SIZE="0x80000000"	# 4GiB
+	MRAM_SIZE="0x20000000"	# 512MiB
 else
 	echo "Invalid type: \"$TYPE\"!"
 	usage
@@ -56,6 +62,7 @@ cat linux-vp_base.dts.in | sed \
 		r $CPUS_TEMP
 	}" \
 	-e "s/@MEM_SIZE@/$MEM_SIZE/g"			\
+	-e "s/@MRAM_SIZE@/$MRAM_SIZE/g"			\
 	-e "s/@CLINT_INT_EXT@/$CLINT_INT_EXT/g"		\
 	-e "s/@PLIC_INT_EXT@/$PLIC_INT_EXT/g"		\
 
