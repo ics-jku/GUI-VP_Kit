@@ -104,6 +104,20 @@
     };
   };
 
+  mram_data: mram@60000000 {
+    reg = <0x60000000 @MRAM_SIZE@>;
+    bank-width = <4>;
+    compatible = "mtd-ram";
+
+    #address-cells = <1>;
+    #size-cells = <1>;
+
+    data@0 {
+      label = "data";
+      reg = <0x00000000 @MRAM_SIZE@>;
+    };
+  };
+
   memory@80000000 {
     device_type = "memory";
     reg = <0x80000000 @MEM_SIZE@>;

@@ -56,27 +56,31 @@ build_all_dts: dt/linux-vp_rv32_sc.dts dt/linux-vp_rv64_sc.dts dt/linux-vp_rv32_
 build_all_dtb: dt/linux-vp_rv32_sc.dtb dt/linux-vp_rv64_sc.dtb dt/linux-vp_rv32_mc.dtb dt/linux-vp_rv64_mc.dtb
 
 run_rv32_sc: build_rv32
-	GUI-VP/vp/build/bin/linux32-sc-vp			\
-		$(GUI_VP_ARGS)					\
-		--dtb-file=dt/linux-vp_rv32_sc.dtb		\
+	GUI-VP/vp/build/bin/linux32-sc-vp				\
+		$(GUI_VP_ARGS)						\
+		--dtb-file=dt/linux-vp_rv32_sc.dtb			\
+		--mram-data-image $(MRAM_IMAGE_DIR)/mram_rv32_data.img	\
 		buildroot_rv32/output/images/fw_payload.elf
 
 run_rv64_sc: build_rv64
-	GUI-VP/vp/build/bin/linux-sc-vp				\
-		$(GUI_VP_ARGS)					\
-		--dtb-file=dt/linux-vp_rv64_sc.dtb		\
+	GUI-VP/vp/build/bin/linux-sc-vp					\
+		$(GUI_VP_ARGS)						\
+		--dtb-file=dt/linux-vp_rv64_sc.dtb			\
+		--mram-data-image $(MRAM_IMAGE_DIR)/mram_rv64_data.img	\
 		buildroot_rv64/output/images/fw_payload.elf
 
 run_rv32_mc: build_rv32
-	GUI-VP/vp/build/bin/linux32-vp				\
-		$(GUI_VP_ARGS)					\
-		--dtb-file=dt/linux-vp_rv32_mc.dtb		\
+	GUI-VP/vp/build/bin/linux32-vp					\
+		$(GUI_VP_ARGS)						\
+		--dtb-file=dt/linux-vp_rv32_mc.dtb			\
+		--mram-data-image $(MRAM_IMAGE_DIR)/mram_rv32_data.img	\
 		buildroot_rv32/output/images/fw_payload.elf
 
 run_rv64_mc: build_rv64
-	GUI-VP/vp/build/bin/linux-vp				\
-		$(GUI_VP_ARGS)					\
-		--dtb-file=dt/linux-vp_rv64_mc.dtb		\
+	GUI-VP/vp/build/bin/linux-vp					\
+		$(GUI_VP_ARGS)						\
+		--dtb-file=dt/linux-vp_rv64_mc.dtb			\
+		--mram-data-image $(MRAM_IMAGE_DIR)/mram_rv64_data.img	\
 		buildroot_rv64/output/images/fw_payload.elf
 
 clean:
