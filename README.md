@@ -144,7 +144,13 @@ remmina vnc://localhost
 ```
 
 ### Xorg
-The root filesystem comes with a modular [Xorg](https://www.x.org/wiki/) server and some some small test applications including also the small footprint web browser [Dillo](https://www.dillo.org/). The Xorg server is automatically started on boot.
+The root filesystem comes with a modular [Xorg](https://www.x.org/wiki/) server and some some small test applications including also the small footprint web browser [Dillo](https://www.dillo.org/).
+
+The Xorg server is not automatically started on boot.
+To start the Xorg server a start script must be called:
+```
+/etc/init.d/optional_xorg/start.sh
+```
 
 Example: Start the dillo webbrowser showing a locally provided demo page:
 ```
@@ -168,9 +174,9 @@ The root filesystem includes some applications that provide graphical output via
  * Image viewer: ```fbv```
  * SDL Doom clone [PrBoom](https://prboom.sourceforge.net/) with Shareware WAD
 
-Before these applications can be used, the Xorg server must be stopped:
+If Xorg is running, it must be stopped, before these applications can be used:
 ```
-/etc/init.d/S40xorg stop
+/etc/init.d/optional_xorg/S40xorg stop
 ```
 
 Example: Show the RISC-V Logo:
