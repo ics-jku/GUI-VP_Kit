@@ -16,12 +16,14 @@ if [[ $TYPE == rv32 ]] ; then
 
 	# on RV32 linux vmalloc size is very limited
 	# -> only small memory areas (images sizes) possible
+	ROOTFSTYPE="squashfs"
 	MRAM_SIZE="0x4000000"	# 64MiB
 
 elif [[ $TYPE == rv64 ]] ; then
 	RISCV_ISA="rv64imafdc"
 	MMU_TYPE="riscv-sv48"
 	MEM_SIZE="0x80000000"	# 4GiB
+	ROOTFSTYPE="romfs"
 	MRAM_SIZE="0x20000000"	# 512MiB
 else
 	echo "Invalid type: \"$TYPE\"!"
@@ -61,6 +63,7 @@ cat linux-vp_base.dts.in | sed \
 		s/\@CPUS\@//g
 		r $CPUS_TEMP
 	}" \
+	-e "s/@ROOTFSTYPE@/$ROOTFSTYPE/g"		\
 	-e "s/@MEM_SIZE@/$MEM_SIZE/g"			\
 	-e "s/@MRAM_SIZE@/$MRAM_SIZE/g"			\
 	-e "s/@CLINT_INT_EXT@/$CLINT_INT_EXT/g"		\

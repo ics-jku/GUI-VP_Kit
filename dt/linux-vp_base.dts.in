@@ -12,7 +12,7 @@
   };
 
   chosen {
-    bootargs = "earlycon=sbi root=/dev/mtdblock0 rootfstype=romfs ro";
+    bootargs = "earlycon=sbi root=/dev/mtdblock0 rootfstype=@ROOTFSTYPE@ ro";
     stdout-path = &uart0;
   };
 

@@ -31,7 +31,8 @@ get: .stamp/gui-vp_get .stamp/buildroot_get
 
 build_rv32: .stamp/gui-vp_build .stamp/buildroot_rv32_build dt/linux-vp_rv32_sc.dtb dt/linux-vp_rv32_mc.dtb
 	mkdir -p $(MRAM_IMAGE_DIR)
-	cp buildroot_rv32/output/images/rootfs.romfs $(MRAM_IMAGE_DIR)/mram_root.img
+	# NOTE: Since RV32 rootfs is restricted to 64MiB we have to use the compressed squashfs here
+	cp buildroot_rv32/output/images/rootfs.squashfs $(MRAM_IMAGE_DIR)/mram_root.img
 
 build_rv64: .stamp/gui-vp_build .stamp/buildroot_rv64_build dt/linux-vp_rv64_sc.dtb dt/linux-vp_rv64_mc.dtb
 	mkdir -p $(MRAM_IMAGE_DIR)
