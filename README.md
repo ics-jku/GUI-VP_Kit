@@ -184,7 +184,7 @@ Example: Show the RISC-V Logo:
 fbv /var/www/riscv-color.jpg
 ```
 
-Example: Run prboom demo (no control yet!) with 350x250 resolution
+Example: Run prboom demo with 350x250 resolution
 ```
 /usr/games/prboom -width 350 -height 250
 ```
