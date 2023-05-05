@@ -26,7 +26,7 @@ This section explains how to build the project and boot the vp.
 
 ### Prerequisites
 
- 1. A running Linux system with at least 25GB of free disk memory and an internet connection
+ 1. A running Linux system with at least 27 GiB of free disk memory and an internet connection
      * The project was developed and tested on Debian 11
  2. Installed packages necessary for GUI-VP
      * see [rescv-vp README.md](https://github.com/ics-jku/GUI-VP/blob/master/README.md)
@@ -204,6 +204,27 @@ STAT:
 ```
 NOTE: Statistics on instructions per frame (ipf) are only valid for single core VPs!
 
+
+### Qt5 (linuxfb)
+The root filessystem includes the Qt5 framework with some sample applications.
+
+Qt5 uses *qpa* with the *linuxfb* backend.
+If Xorg is running, it must be stopped, before Qt can be used:
+```
+/etc/init.d/optional_xorg/S40xorg stop
+```
+
+The examples are located in ```/usr/lib/qt/examples```.
+
+Example: Calculator
+```
+/usr/lib/qt/examples/widgets/widgets/calculator/calculator
+```
+
+Example: Widget Gallery
+```
+/usr/lib/qt/examples/widgets/gallery/gallery
+```
 
 ## Networking
 *GUI-VP* provides networking using [Serial Line Internet Protocol](https://en.wikipedia.org/wiki/Serial_Line_Internet_Protocol) (Slip) and [TUN/TAP](https://en.wikipedia.org/wiki/Serial_Line_Internet_Protocol). The virtual serial interface */dev/ttySIF1* provides the slip interface. The hosts *tun10* provides the corresponding tun interface.
