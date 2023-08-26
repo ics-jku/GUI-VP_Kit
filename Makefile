@@ -5,7 +5,7 @@
 
 BUILDROOT_GIT=git://git.buildroot.net/buildroot
 BUILDROOT_VERSION=2022.11.1
-GUI_VP_GIT=git@github.com:ics-jku/GUI-VP.git
+GUI_VP_GIT=https://github.com/ics-jku/GUI-VP.git
 GUI_VP_VERSION=master
 MRAM_IMAGE_DIR=runtime_mram
 GUI_VP_ARGS=\
