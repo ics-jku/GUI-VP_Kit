@@ -29,7 +29,7 @@ This section explains how to build the project and boot the vp.
  1. A running Linux system with at least 27 GiB of free disk memory and an internet connection
      * The project was developed and tested on Debian 11
  2. Installed packages necessary for GUI-VP
-     * see [rescv-vp README.md](https://github.com/ics-jku/GUI-VP/blob/master/README.md)
+     * see [riscv-vp README.md](https://github.com/ics-jku/GUI-VP/blob/master/README.md)
  3. Installed packages necessary for buildroot
      * see [Buildroot Manual -- Chapter 2. System requirements](https://buildroot.org/downloads/manual/manual.html#requirement)
  4. The project repository
