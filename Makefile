@@ -11,8 +11,7 @@ MRAM_IMAGE_DIR=runtime_mram
 GUI_VP_ARGS=\
 	--use-data-dmi						\
 	--tlm-global-quantum=1000000				\
-	--tun-device tun10					\
-	--mram-root-image $(MRAM_IMAGE_DIR)/mram_root.img
+	--tun-device tun10
 DTC="buildroot_rv32/output/host/bin/dtc"
 
 .PHONY: help all get dtb build_rv32 build_rv64 build vp-rebuild \
@@ -30,13 +29,8 @@ all: build
 get: .stamp/gui-vp_get .stamp/buildroot_get
 
 build_rv32: .stamp/gui-vp_build .stamp/buildroot_rv32_build dt/linux-vp_rv32_sc.dtb dt/linux-vp_rv32_mc.dtb
-	mkdir -p $(MRAM_IMAGE_DIR)
-	# NOTE: Since RV32 rootfs is restricted to 64MiB we have to use the compressed squashfs here
-	cp buildroot_rv32/output/images/rootfs.squashfs $(MRAM_IMAGE_DIR)/mram_root.img
 
 build_rv64: .stamp/gui-vp_build .stamp/buildroot_rv64_build dt/linux-vp_rv64_sc.dtb dt/linux-vp_rv64_mc.dtb
-	mkdir -p $(MRAM_IMAGE_DIR)
-	cp buildroot_rv64/output/images/rootfs.romfs $(MRAM_IMAGE_DIR)/mram_root.img
 
 build: build_rv32 build_rv64
 
@@ -60,6 +54,7 @@ run_rv32_sc: build_rv32
 	GUI-VP/vp/build/bin/linux32-sc-vp				\
 		$(GUI_VP_ARGS)						\
 		--dtb-file=dt/linux-vp_rv32_sc.dtb			\
+		--mram-root-image $(MRAM_IMAGE_DIR)/mram_rv32_root.img	\
 		--mram-data-image $(MRAM_IMAGE_DIR)/mram_rv32_data.img	\
 		buildroot_rv32/output/images/fw_payload.elf
 
@@ -67,6 +62,7 @@ run_rv64_sc: build_rv64
 	GUI-VP/vp/build/bin/linux-sc-vp					\
 		$(GUI_VP_ARGS)						\
 		--dtb-file=dt/linux-vp_rv64_sc.dtb			\
+		--mram-root-image $(MRAM_IMAGE_DIR)/mram_rv64_root.img	\
 		--mram-data-image $(MRAM_IMAGE_DIR)/mram_rv64_data.img	\
 		buildroot_rv64/output/images/fw_payload.elf
 
@@ -74,6 +70,7 @@ run_rv32_mc: build_rv32
 	GUI-VP/vp/build/bin/linux32-vp					\
 		$(GUI_VP_ARGS)						\
 		--dtb-file=dt/linux-vp_rv32_mc.dtb			\
+		--mram-root-image $(MRAM_IMAGE_DIR)/mram_rv32_root.img	\
 		--mram-data-image $(MRAM_IMAGE_DIR)/mram_rv32_data.img	\
 		buildroot_rv32/output/images/fw_payload.elf
 
@@ -81,6 +78,7 @@ run_rv64_mc: build_rv64
 	GUI-VP/vp/build/bin/linux-vp					\
 		$(GUI_VP_ARGS)						\
 		--dtb-file=dt/linux-vp_rv64_mc.dtb			\
+		--mram-root-image $(MRAM_IMAGE_DIR)/mram_rv64_root.img	\
 		--mram-data-image $(MRAM_IMAGE_DIR)/mram_rv64_data.img	\
 		buildroot_rv64/output/images/fw_payload.elf
 
@@ -148,6 +146,9 @@ distclean:
 	make -C buildroot_rv32 source
 	make -C buildroot_rv32
 	make -C buildroot_rv32 opensbi-rebuild
+	mkdir -p $(MRAM_IMAGE_DIR)
+	# NOTE: Since RV32 rootfs is restricted to 64MiB we have to use the compressed squashfs here
+	cp buildroot_rv32/output/images/rootfs.squashfs $(MRAM_IMAGE_DIR)/mram_rv32_root.img
 	@touch $@
 
 .stamp/buildroot_rv64_build: .stamp/buildroot_config
@@ -155,6 +156,8 @@ distclean:
 	make -C buildroot_rv64 source
 	make -C buildroot_rv64
 	make -C buildroot_rv64 opensbi-rebuild
+	mkdir -p $(MRAM_IMAGE_DIR)
+	cp buildroot_rv64/output/images/rootfs.romfs $(MRAM_IMAGE_DIR)/mram_rv64_root.img
 	@touch $@
 
 
