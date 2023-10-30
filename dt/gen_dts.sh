@@ -24,7 +24,7 @@ elif [[ $TYPE == rv64 ]] ; then
 	RISCV_ISA_CPU0="rv64imac"
 	RISCV_ISA="rv64imafdc"
 	MMU_TYPE="riscv,sv39"
-	MEM_SIZE="0x80000000"	# 4GiB
+	MEM_SIZE="0x80000000"	# 2 GiB
 	ROOTFSTYPE="romfs"
 	MRAM_SIZE="0x20000000"	# 512MiB
 else
