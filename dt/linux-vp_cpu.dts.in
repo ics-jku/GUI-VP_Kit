@@ -1,14 +1,13 @@
-		CPU@CPU_NR@: cpu@@CPU_NR@ {
+		cpu@CPU_NR@: cpu@@CPU_NR@ {
+			compatible = "sifive,u54-mc", "sifive,rocket0", "riscv";
 			device_type = "cpu";
-			reg = <@CPU_NR@>;
-			status = @STATUS@;
-			compatible = "riscv";
-			riscv,isa = @RISCV_ISA@;
 			mmu-type = @MMU_TYPE@;
+			reg = <@CPU_NR@>;
+			riscv,isa = @RISCV_ISA@;
 			clock-frequency = <100000000>;
-			CPU@CPU_NR@_intc: interrupt-controller {
+			cpu@CPU_NR@_intc: interrupt-controller {
 				#interrupt-cells = <1>;
-				interrupt-controller;
 				compatible = "riscv,cpu-intc";
+				interrupt-controller;
 			};
 		};
