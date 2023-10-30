@@ -75,6 +75,12 @@
 			compatible = "sifive,test1", "sifive,test0", "syscon";
 		};
 
+		clint0: clint@2000000 {
+			compatible = "sifive,fu540-c000-clint", "sifive,clint0";
+			reg = <0x0 0x2000000 0x0 0xC000>;
+			interrupts-extended = @CLINT_INT_EXT@;
+		};
+
 		plic0: interrupt-controller@c000000 {
 			compatible = "sifive,fu540-c000-plic", "sifive,plic-1.0.0";
 			reg = <0x0 0xc000000 0x0 0x4000000>;

@@ -42,6 +42,7 @@ fi
 CPUS_TEMP=$(mktemp)
 
 PLIC_INT_EXT="\n\t\t\t\t<\&cpu0_intc 0xffffffff>"
+CLINT_INT_EXT="\n\t\t\t\t<\&cpu0_intc 3>, <\&cpu0_intc 7>"
 CPU_MAP=""
 for cpu_nr in $(seq 1 $NUM_CORES) ; do
 	cat linux-vp_cpu.dts.in | sed			\
@@ -53,6 +54,7 @@ for cpu_nr in $(seq 1 $NUM_CORES) ; do
 	CPU_MAP+="\t\t\t\tcore${cpu_nr} {\n"
 	CPU_MAP+="\t\t\t\t\tcpu = <\&cpu${cpu_nr}>;\n"
 	CPU_MAP+="\t\t\t\t};\n"
+	CLINT_INT_EXT+=",\n\t\t\t\t<\&cpu${cpu_nr}_intc 3>, <\&cpu${cpu_nr}_intc 7>"
 	PLIC_INT_EXT+=",\n\t\t\t\t<\&cpu${cpu_nr}_intc 0xffffffff>, <\&cpu${cpu_nr}_intc 9>"
 done
 
