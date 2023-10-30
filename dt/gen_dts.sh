@@ -49,8 +49,8 @@ for i in $(seq 0 $NUM_CORES) ; do
 		-e "s/@RISCV_ISA@/\"$RISCV_ISA\"/g"	\
 		-e "s/@MMU_TYPE@/\"$MMU_TYPE\"/g"	\
 		>> $CPUS_TEMP
-	CLINT_INT_EXT+="\n	\&CPU${i}_intc 3 \&CPU${i}_intc 7"
-	PLIC_INT_EXT+="\n	\&CPU${i}_intc 11"
+	CLINT_INT_EXT+="\n\t\t\t\t\&CPU${i}_intc 3 \&CPU${i}_intc 7"
+	PLIC_INT_EXT+="\n\t\t\t\t\&CPU${i}_intc 11"
 	if [[ $i != 0 ]] ; then
 		PLIC_INT_EXT+=" \&CPU${i}_intc 9"
 	fi
