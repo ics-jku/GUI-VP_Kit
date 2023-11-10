@@ -11,7 +11,7 @@ cd $(dirname $0)
 
 if [[ $TYPE == rv32 ]] ; then
 	RISCV_ISA_CPU0="rv32imac"
-	RISCV_ISA="rv32imafdc"
+	RISCV_ISA="rv32imafdcv"
 	MMU_TYPE="riscv,sv32"
 	MEM_SIZE="0x40000000"	# 1 GiB
 
@@ -22,7 +22,7 @@ if [[ $TYPE == rv32 ]] ; then
 
 elif [[ $TYPE == rv64 ]] ; then
 	RISCV_ISA_CPU0="rv64imac"
-	RISCV_ISA="rv64imafdc"
+	RISCV_ISA="rv64imafdcv"
 	MMU_TYPE="riscv,sv39"
 	MEM_SIZE="0x80000000"	# 2 GiB
 	ROOTFSTYPE="romfs"
