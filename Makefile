@@ -5,10 +5,11 @@
 
 BUILDROOT_GIT=git://git.buildroot.net/buildroot
 BUILDROOT_VERSION=2023.08.2
-GUI_VP_GIT=https://github.com/ics-jku/GUI-VP.git
-GUI_VP_VERSION=master
+VP_NAME="GUI-VP"
+VP_GIT=https://github.com/ics-jku/$(VP_NAME).git
+VP_VERSION=master
 MRAM_IMAGE_DIR=runtime_mram
-GUI_VP_ARGS=\
+VP_ARGS=\
 	--use-data-dmi						\
 	--tlm-global-quantum=1000000				\
 	--tun-device tun10
@@ -26,17 +27,17 @@ help:
 
 all: build
 
-get: .stamp/gui-vp_get .stamp/buildroot_get
+get: .stamp/vp_get .stamp/buildroot_get
 
-build_rv32: .stamp/gui-vp_build .stamp/buildroot_rv32_build dt/linux-vp_rv32_sc.dtb dt/linux-vp_rv32_mc.dtb
+build_rv32: .stamp/vp_build .stamp/buildroot_rv32_build dt/linux-vp_rv32_sc.dtb dt/linux-vp_rv32_mc.dtb
 
-build_rv64: .stamp/gui-vp_build .stamp/buildroot_rv64_build dt/linux-vp_rv64_sc.dtb dt/linux-vp_rv64_mc.dtb
+build_rv64: .stamp/vp_build .stamp/buildroot_rv64_build dt/linux-vp_rv64_sc.dtb dt/linux-vp_rv64_mc.dtb
 
 build: build_rv32 build_rv64
 
 vp-rebuild:
-	rm -rf .stamp/gui-vp_build
-	make .stamp/gui-vp_build
+	rm -rf .stamp/vp_build
+	make .stamp/vp_build
 
 buildroot_rv32-rebuild:
 	rm -rf .stamp/buildroot_rv32_build
@@ -51,39 +52,39 @@ build_all_dts: dt/linux-vp_rv32_sc.dts dt/linux-vp_rv64_sc.dts dt/linux-vp_rv32_
 build_all_dtb: dt/linux-vp_rv32_sc.dtb dt/linux-vp_rv64_sc.dtb dt/linux-vp_rv32_mc.dtb dt/linux-vp_rv64_mc.dtb
 
 run_rv32_sc: build_rv32
-	GUI-VP/vp/build/bin/linux32-sc-vp				\
-		$(GUI_VP_ARGS)						\
+	$(VP_NAME)/vp/build/bin/linux32-sc-vp				\
+		$(VP_ARGS)						\
 		--dtb-file=dt/linux-vp_rv32_sc.dtb			\
 		--mram-root-image $(MRAM_IMAGE_DIR)/mram_rv32_root.img	\
 		--mram-data-image $(MRAM_IMAGE_DIR)/mram_rv32_data.img	\
 		buildroot_rv32/output/images/fw_payload.elf
 
 run_rv64_sc: build_rv64
-	GUI-VP/vp/build/bin/linux-sc-vp					\
-		$(GUI_VP_ARGS)						\
+	$(VP_NAME)/vp/build/bin/linux-sc-vp				\
+		$(VP_ARGS)						\
 		--dtb-file=dt/linux-vp_rv64_sc.dtb			\
 		--mram-root-image $(MRAM_IMAGE_DIR)/mram_rv64_root.img	\
 		--mram-data-image $(MRAM_IMAGE_DIR)/mram_rv64_data.img	\
 		buildroot_rv64/output/images/fw_payload.elf
 
 run_rv32_mc: build_rv32
-	GUI-VP/vp/build/bin/linux32-vp					\
-		$(GUI_VP_ARGS)						\
+	$(VP_NAME)/vp/build/bin/linux32-vp				\
+		$(VP_ARGS)						\
 		--dtb-file=dt/linux-vp_rv32_mc.dtb			\
 		--mram-root-image $(MRAM_IMAGE_DIR)/mram_rv32_root.img	\
 		--mram-data-image $(MRAM_IMAGE_DIR)/mram_rv32_data.img	\
 		buildroot_rv32/output/images/fw_payload.elf
 
 run_rv64_mc: build_rv64
-	GUI-VP/vp/build/bin/linux-vp					\
-		$(GUI_VP_ARGS)						\
+	$(VP_NAME)/vp/build/bin/linux-vp				\
+		$(VP_ARGS)						\
 		--dtb-file=dt/linux-vp_rv64_mc.dtb			\
 		--mram-root-image $(MRAM_IMAGE_DIR)/mram_rv64_root.img	\
 		--mram-data-image $(MRAM_IMAGE_DIR)/mram_rv64_data.img	\
 		buildroot_rv64/output/images/fw_payload.elf
 
 clean:
-	- $(MAKE) clean -C GUI-VP
+	- $(MAKE) clean -C $(VP_NAME)
 	- $(MAKE) clean -C buildroot_rv64
 	- $(MAKE) clean -C buildroot_rv32
 	- rm -rf dt/*.dtb
@@ -93,7 +94,7 @@ clean:
 distclean:
 	- rm -rf .stamp
 	- rm -rf buildroot_rv32 buildroot_rv64 buildroot_dl
-	- rm -rf GUI-VP
+	- rm -rf $(VP_NAME)
 	- rm -rf dt/*.dtb
 	- rm -rf dt/*.dts
 
@@ -105,19 +106,19 @@ distclean:
 	@touch $@
 
 
-## GUI VP
+## VP
 
-.stamp/gui-vp_get: .stamp/init
+.stamp/vp_get: .stamp/init
 	@echo " + GET RISC-V VP"
-	rm -rf GUI-VP
-	git clone $(GUI_VP_GIT) GUI-VP
-	( cd GUI-VP && git checkout $(GUI_VP_VERSION) )
+	rm -rf $(VP_NAME)
+	git clone $(VP_GIT) $(VP_NAME)
+	( cd $(VP_NAME) && git checkout $(VP_VERSION) )
 	@touch $@
 
-.stamp/gui-vp_build: .stamp/gui-vp_get
+.stamp/vp_build: .stamp/vp_get
 	@echo " + BUILD RISC-V VP"
 	# ensure release build
-	RELEASE_BUILD=ON $(MAKE) vps -C GUI-VP #-j$(NPROCS) (broken)
+	RELEASE_BUILD=ON $(MAKE) vps -C $(VP_NAME) #-j$(NPROCS) (broken)
 	@touch $@
 
 
