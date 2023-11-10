@@ -55,74 +55,103 @@ A list of all useful make targets is provided by ```make help``` or simply ```ma
 
 Login with *root* and empty password.
 
-**Example (rv32, singlecore):**
+**Example (rv64, singlecore):**
 ```
-$ make run_rv32_sc
-GUI-VP/vp/build/bin/linux32-vp                                        \
-        --use-data-dmi --tlm-global-quantum=1000 --tun-device tun10   \
-        --dtb-file=dt/linux-vp_rv32_sc.dtb                            \
-        buildroot_rv32/output/images/fw_payload.elf
+$ make run_rv64_sc
+"GUI-VP"/vp/build/bin/linux-sc-vp				\
+	--use-data-dmi --tlm-global-quantum=1000000 --tun-device tun10						\
+	--dtb-file=dt/linux-vp_rv64_sc.dtb			\
+	--mram-root-image runtime_mram/mram_rv64_root.img	\
+	--mram-data-image runtime_mram/mram_rv64_data.img	\
+	buildroot_rv64/output/images/fw_payload.elf
 
-        SystemC 2.3.3-Accellera --- Aug 11 2022 14:52:20
+        SystemC 2.3.3-Accellera --- Nov 10 2023 12:26:58
         Copyright (c) 1996-2018 by all Contributors,
         ALL RIGHTS RESERVED
 
-OpenSBI v0.9
+OpenSBI v1.3
    ____                    _____ ____ _____
   / __ \                  / ____|  _ \_   _|
  | |  | |_ __   ___ _ __ | (___ | |_) || |
  | |  | | '_ \ / _ \ '_ \ \___ \|  _ < | |
  | |__| | |_) |  __/ | | |____) | |_) || |_
-  \____/| .__/ \___|_| |_|_____/|____/_____|
+  \____/| .__/ \___|_| |_|_____/|___/_____|
         | |
         |_|
 
-Platform Name             : SiFive Freedom U540
-Platform Features         : timer,mfdeleg
-Platform HART Count       : 4
+Platform Name             : Generic
+Platform Features         : medeleg
+Platform HART Count       : 1
+Platform IPI Device       : aclint-mswi
+Platform Timer Device     : aclint-mtimer @ 1000000Hz
+Platform Console Device   : sifive_uart
+Platform HSM Device       : ---
+Platform PMU Device       : ---
+Platform Reboot Device    : sifive_test
+Platform Shutdown Device  : sifive_test
+Platform Suspend Device   : ---
+Platform CPPC Device      : ---
 Firmware Base             : 0x80000000
-Firmware Size             : 132 KB
-Runtime SBI Version       : 0.2
+Firmware Size             : 322 KB
+Firmware RW Offset        : 0x40000
+Firmware RW Size          : 66 KB
+Firmware Heap Offset      : 0x48000
+Firmware Heap Size        : 34 KB (total), 2 KB (reserved), 9 KB (used), 22 KB (free)
+Firmware Scratch Size     : 4096 B (total), 760 B (used), 3336 B (free)
+Runtime SBI Version       : 1.0
 
 Domain0 Name              : root
 Domain0 Boot HART         : 1
-Domain0 HARTs             : 1*,2*,3*,4*
-Domain0 Region00          : 0x80000000-0x8003ffff ()
-Domain0 Region01          : 0x00000000-0xffffffff (R,W,X)
-Domain0 Next Address      : 0x80400000
-Domain0 Next Arg1         : 0x88000000
+Domain0 HARTs             : 1*
+Domain0 Region00          : 0x0000000002008000-0x000000000200bfff M: (I,R,W) S/U: ()
+Domain0 Region01          : 0x0000000002000000-0x0000000002007fff M: (I,R,W) S/U: ()
+Domain0 Region02          : 0x0000000080040000-0x000000008005ffff M: (R,W) S/U: ()
+Domain0 Region03          : 0x0000000080000000-0x000000008003ffff M: (R,X) S/U: ()
+Domain0 Region04          : 0x0000000000000000-0xffffffffffffffff M: (R,W,X) S/U: (R,W,X)
+Domain0 Next Address      : 0x0000000080200000
+Domain0 Next Arg1         : 0x0000000082200000
 Domain0 Next Mode         : S-mode
 Domain0 SysReset          : yes
+Domain0 SysSuspend        : yes
 
 Boot HART ID              : 1
 Boot HART Domain          : root
-Boot HART ISA             : rv32imafdcnsu
-Boot HART Features        : scounteren,mcounteren,time
+Boot HART Priv Version    : v1.11
+Boot HART Base ISA        : rv64imafdcn
+Boot HART ISA Extensions  : time
 Boot HART PMP Count       : 16
 Boot HART PMP Granularity : 4
-Boot HART PMP Address Bits: 32
+Boot HART PMP Address Bits: 54
 Boot HART MHPM Count      : 0
-Boot HART MHPM Count      : 0
-Boot HART MIDELEG         : 0x00000222
-Boot HART MEDELEG         : 0x0000b109
-[    0.000000] Linux version 5.17.13 (ame@blackdwarf) (riscv32-buildroot-linux-gnu-gcc.br_real (Buildroot 2022.05) 10.3.0, GNU ld (GNU Binutils) 2.37) #2 SMP Thu Aug 11 15:22:54 CEST 2022
-[    0.000000] OF: fdt: Ignoring memory range 0x80000000 - 0x80400000
-[    0.000000] Machine model: ub,vp-bare
-[    0.000000] Zone ranges:
-[    0.000000]   Normal   [mem 0x0000000080400000-0x00000000bfffffff]
-[    0.000000] Movable zone start for each node
+Boot HART MIDELEG         : 0x0000000000000222
+Boot HART MEDELEG         : 0x000000000000b109
+[    0.000000] Linux version 6.6.0 (ame@pulsar) (riscv64-buildroot-linux-gnu-gcc.br_real (Buildroot 2023.08.2) 13.2.0, GNU ld (GNU Binutils) 2.40) #1 SMP Mon Oct 30 19:29:01 CET 2023
+[    0.000000] Machine model: sifive,fu540-c000
+[    0.000000] SBI specification v1.0 detected
+[    0.000000] SBI implementation ID=0x1 Version=0x10003
+[    0.000000] SBI TIME extension detected
+[    0.000000] SBI IPI extension detected
+[    0.000000] SBI RFENCE extension detected
+[    0.000000] SBI SRST extension detected
 
 ...
 
-[    7.396227] debug_vm_pgtable: [debug_vm_pgtable         ]: Validating architecture page table helpers
-[   16.656213] Freeing unused kernel image (initmem) memory: 6536K
-[   16.659675] Run /init as init process
+[    4.786928] VFS: Mounted root (romfs filesystem) readonly on device 31:0.
+[    4.834007] devtmpfs: mounted
+[    4.902461] Freeing unused kernel image (initmem) memory: 2156K
+[    4.988638] Run /sbin/init as init process
+Mount /dev/mtdblock1 to /data
+ * Check
+e2fsck 1.47.0 (5-Feb-2023)
+/dev/mtdblock1: clean, 14/32768 files, 6385/131072 blocks
+ * Mount
+[    6.821228] EXT4-fs (mtdblock1): mounted filesystem 23538d76-1dd2-11b2-9df6-1132e6b7713a r/w with ordered data mode. Quota mode: disabled.
+seedrng: can't create directory '/var/lib/seedrng': Read-only file system
 Starting syslogd: OK
 Starting klogd: OK
 Running sysctl: OK
-Saving random seed: [   22.191178] random: dd: uninitialized urandom read (32 bytes read)
-OK
 Starting network: OK
+Starting darkhttpd: OK
 Starting telnetd: OK
 
 Welcome to Buildroot
