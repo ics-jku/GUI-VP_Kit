@@ -118,7 +118,7 @@ distclean:
 .stamp/vp_build: .stamp/vp_get
 	@echo " + BUILD RISC-V VP"
 	# ensure release build
-	RELEASE_BUILD=ON $(MAKE) vps -C $(VP_NAME) #-j$(NPROCS) (broken)
+	RELEASE_BUILD=ON $(MAKE) vps -C $(VP_NAME) -j$(NPROCS)
 	@touch $@
 
 
