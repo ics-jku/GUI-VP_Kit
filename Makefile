@@ -5,7 +5,7 @@
 
 BUILDROOT_GIT=git://git.buildroot.net/buildroot
 BUILDROOT_VERSION=2023.08.2
-VP_NAME="GUI-VP"
+VP_NAME="riscv-vp-plusplus"
 VP_GIT=https://github.com/ics-jku/$(VP_NAME).git
 VP_VERSION=master
 MRAM_IMAGE_DIR=runtime_mram

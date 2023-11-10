@@ -1,16 +1,17 @@
 # GUI-VP Kit: A RISC-V VP Meets Linux Graphics -- Enabling Interactive Graphical Application Development
 
-The goal of this project is to provide a quick-to-create and easy-to-use platform for experimentation with Linux on the open-source SystemC RISC-V based virtual prototype [GUI-VP](https://github.com/ics-jku/GUI-VP).
-*GUI-VP* is a greatly extended and improved open-source [RISC-V VP](https://github.com/agra-uni-bremen/riscv-vp), that enables the simulation of interactive graphical Linux applications.
-*GUI-VP Kit* handles the generation of all necessary software parts and provides an experimentation environment for running Linux with interactive graphical applications on RV32- and RV64-based VPs.
+The aim of this project is to provide a quick to create and easy to use platform for experimenting with Linux on the open-source SystemC RISC-V based virtual prototype [RISCV-VP++](https://github.com/ics-jku/riscv-vp-plusplus).
+*RISCV-VP++* is a powerful open-source VP that allows simulation of RISC-V platforms capable of running Linux with interactive graphical applications.
+*GUI-VP Kit* handles the generation of all the necessary software parts and provides an experimentation environment for Linux with interactive graphical applications.
 
-*GUI-VP Kit* and *GUI-VP* were created at the [Institute for Complex Systems](https://ics.jku.at/), Johannes Kepler University, Linz.
-They were first introduced in 2023 at the *ACM Great Lakes Symposium on VLSI*, by Manfred Schlägl and Daniel Große with [GUI-VP Kit: A RISC-V VP meets Linux graphics - enabling interactive graphical application development](https://ics.jku.at/files/2023GLSVLSI_GUI-VP_Kit.pdf).
-A BibTex entry to cite to the paper can be found in the last section.
+*GUI-VP Kit* was originally developed for use with [GUI-VP](https://github.com/ics-jku/GUI-VP), which was introduced together with *GUI-VP Kit* at the *ACM Great Lakes Symposium on VLSI*, by Manfred Schlägl and Daniel Große with [GUI-VP Kit: A RISC-V VP meets Linux graphics - enabling interactive graphical application development](https://ics.jku.at/files/2023GLSVLSI_GUI-VP_Kit.pdf). (A BibTex entry to cite to the paper can be found in the last section.)
+However, since the integration of the full functionality of *GUI-VP* into *RISC-VP++* in 2023, *GUI-VP Kit* uses *RISC-VP++* for simulation.
+
+*GUI-VP Kit* and *RISCV-VP++* were created and are maintained at the [Institute for Complex Systems](https://ics.jku.at/), Johannes Kepler University, Linz.
 
 ## Key Features
 The project
- * downloads and builds [GUI-VP](https://github.com/ics-jku/GUI-VP) (vp executables)
+ * downloads and builds [RISCV-VP++](https://github.com/ics-jku/riscv-vp-plusplus) (vp executables)
  * downloads and builds [buildroot](https://buildroot.org) for rv32 and rv64, including
    * the C/C++ toolchain (gcc, glibc) (also for external use -- see below)
    * the root filesystem (based on busybox)
@@ -27,9 +28,9 @@ This section explains how to build the project and boot the vp.
 ### Prerequisites
 
  1. A running Linux system with at least 27 GiB of free disk memory and an internet connection
-     * The project was developed and tested on Debian 11
- 2. Installed packages necessary for GUI-VP
-     * see [riscv-vp README.md](https://github.com/ics-jku/GUI-VP/blob/master/README.md)
+     * The project was developed and tested on Debian 11 and 12
+ 2. Installed packages necessary for *RISCV-VP++*
+     * see [riscv-vp README.md](https://github.com/ics-jku/riscv-vp-plusplus/blob/master/README.md)
  3. Installed packages necessary for buildroot
      * see [Buildroot Manual -- Chapter 2. System requirements](https://buildroot.org/downloads/manual/manual.html#requirement)
  4. The project repository
@@ -58,16 +59,18 @@ Login with *root* and empty password.
 **Example (rv64, singlecore):**
 ```
 $ make run_rv64_sc
-"GUI-VP"/vp/build/bin/linux-sc-vp				\
+"riscv-vp-plusplus"/vp/build/bin/linux-sc-vp				\
 	--use-data-dmi --tlm-global-quantum=1000000 --tun-device tun10						\
 	--dtb-file=dt/linux-vp_rv64_sc.dtb			\
 	--mram-root-image runtime_mram/mram_rv64_root.img	\
 	--mram-data-image runtime_mram/mram_rv64_data.img	\
 	buildroot_rv64/output/images/fw_payload.elf
 
-        SystemC 2.3.3-Accellera --- Nov 10 2023 12:26:58
+        SystemC 2.3.3-Accellera --- Nov 10 2023 12:43:08
         Copyright (c) 1996-2018 by all Contributors,
         ALL RIGHTS RESERVED
+10/11/2023 12:53:16 Listening for VNC connections on TCP port 5900
+10/11/2023 12:53:16 Listening for VNC connections on TCP6 port 5900
 
 OpenSBI v1.3
    ____                    _____ ____ _____
@@ -164,7 +167,7 @@ buildroot login: root
  * Clean everything (including downloads): ```make distclean```
 
 ## Graphics (VNC Framebuffer and Mouse)
-GUI-VP provides graphical output and pointer(mouse)/keyboard event propagation via VNC.
+*RISCV-VP++* provides graphical output and pointer(mouse)/keyboard event propagation via VNC.
 Any VNC client (e.g. [Remmina](https://remmina.org/)) can be used.
 
 Example (on the host)
@@ -256,7 +259,7 @@ Example: Widget Gallery
 ```
 
 ## Networking
-*GUI-VP* provides networking using [Serial Line Internet Protocol](https://en.wikipedia.org/wiki/Serial_Line_Internet_Protocol) (Slip) and [TUN/TAP](https://en.wikipedia.org/wiki/Serial_Line_Internet_Protocol). The virtual serial interface */dev/ttySIF1* provides the slip interface. The hosts *tun10* provides the corresponding tun interface.
+*RISCV-VP++* provides networking using [Serial Line Internet Protocol](https://en.wikipedia.org/wiki/Serial_Line_Internet_Protocol) (Slip) and [TUN/TAP](https://en.wikipedia.org/wiki/Serial_Line_Internet_Protocol). The virtual serial interface */dev/ttySIF1* provides the slip interface. The hosts *tun10* provides the corresponding tun interface.
 
 ### Setup
 **Note:** The IP addresses must be chosen carefully to avoid conflicts in the host's network configuration. By default 10.0.0.1 is used for the host and 10.0.0.2 for linux running inside the vp. The addresses can be changed in ```tools/setup_host_networking.sh``` and ```buildroot_fs_overlay/etc/network/interfaces``` (buildroot rebuild necessary).
@@ -354,8 +357,8 @@ Changes to directory are visible in almost real time on both systems.
 The C/C++ toolchain build by buildroot provides support for external use (e.g. to build own projects outside of buildroot).
 
 **To setup a running shell for cross compilation using the created toolchain:**
- * for rv32: ```. <path_to_GUI-VP_linux>/buildroot_rv32/output/host/environment-setup```
- * for rv64: ```. <path_to_GUI-VP_linux>/buildroot_rv64/output/host/environment-setup```
+ * for rv32: ```. <path_to_GUI-VP_Kit>/buildroot_rv32/output/host/environment-setup```
+ * for rv64: ```. <path_to_GUI-VP_Kit>/buildroot_rv64/output/host/environment-setup```
 
 **Example (rv32):**
 ```
