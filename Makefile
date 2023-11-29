@@ -9,10 +9,8 @@ VP_NAME="riscv-vp-plusplus"
 VP_GIT=https://github.com/ics-jku/$(VP_NAME).git
 VP_VERSION=master
 MRAM_IMAGE_DIR=runtime_mram
-VP_ARGS=\
-	--use-data-dmi						\
-	--tlm-global-quantum=1000000				\
-	--tun-device tun10
+# VP_ARGS can be overriden by user ($ VP_ARGS="..." make run_...)
+VP_ARGS?=--use-data-dmi --tlm-global-quantum=1000000 --tun-device tun10
 DTC="buildroot_rv32/output/host/bin/dtc"
 
 .PHONY: help all get dtb build_rv32 build_rv64 build vp-rebuild \
@@ -23,6 +21,11 @@ help:
 	@echo
 	@echo "Targets:"
 	@grep '^[^#[:space:]].*:' Makefile | cut -d':' -f1 | grep -v '\.\|dt/\|='
+	@echo
+	@echo "VP Arguments:"
+	@echo $(VP_ARGS)
+	@echo "Can be overriden by user"
+	@echo "Example: VP_ARGS="--tlm-global-quantum=100" make run_rv32_sc"
 	@echo
 
 all: build
