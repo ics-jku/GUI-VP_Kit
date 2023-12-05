@@ -11,7 +11,7 @@ VP_VERSION=master
 MRAM_IMAGE_DIR=runtime_mram
 # VP_ARGS can be overriden by user ($ VP_ARGS="..." make run_...)
 VP_ARGS?=--use-data-dmi --tlm-global-quantum=1000000 --tun-device tun10
-DTC="buildroot_rv32/output/host/bin/dtc"
+BR_DTC="output/host/bin/dtc"
 
 .PHONY: help all get dtb build_rv32 build_rv64 build vp-rebuild \
 	buildroot_rv32-rebuild buildroot_rv64-rebuild \
@@ -185,16 +185,16 @@ dt/linux-vp_rv64_mc.dts: dt/linux-vp_base.dts.in dt/linux-vp_cpu.dts.in dt/gen_d
 
 dt/linux-vp_rv32_sc.dtb: dt/linux-vp_rv32_sc.dts .stamp/buildroot_rv32_build
 	@echo " + CREATE VP RV32 SINGLECORE DTB: $@"
-	$(DTC) $< -o $@
+	buildroot_rv32/$(BR_DTC) $< -o $@
 
 dt/linux-vp_rv64_sc.dtb: dt/linux-vp_rv64_sc.dts .stamp/buildroot_rv64_build
 	@echo " + CREATE VP RV64 SINGLECORE DTB: $@"
-	$(DTC) $< -o $@
+	buildroot_rv64/$(BR_DTC) $< -o $@
 
 dt/linux-vp_rv32_mc.dtb: dt/linux-vp_rv32_mc.dts .stamp/buildroot_rv32_build
 	@echo " + CREATE VP RV32 MULTICORE DTB: $@"
-	$(DTC) $< -o $@
+	buildroot_rv32/$(BR_DTC) $< -o $@
 
 dt/linux-vp_rv64_mc.dtb: dt/linux-vp_rv64_mc.dts .stamp/buildroot_rv64_build
 	@echo " + CREATE VP RV64 MULTICORE DTB: $@"
-	$(DTC) $< -o $@
+	buildroot_rv64/$(BR_DTC) $< -o $@
