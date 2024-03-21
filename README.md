@@ -4,7 +4,7 @@ The aim of this project is to provide a quick to create and easy to use platform
 *RISCV-VP++* is a powerful open-source VP that allows simulation of RISC-V platforms capable of running Linux with interactive graphical applications.
 *GUI-VP Kit* handles the generation of all the necessary software parts and provides an experimentation environment for Linux with interactive graphical applications.
 
-*GUI-VP Kit* was originally developed for use with [GUI-VP](https://github.com/ics-jku/GUI-VP), which was introduced together with *GUI-VP Kit* at the *ACM Great Lakes Symposium on VLSI*, by Manfred Schlägl and Daniel Große with [GUI-VP Kit: A RISC-V VP meets Linux graphics - enabling interactive graphical application development](https://ics.jku.at/files/2023GLSVLSI_GUI-VP_Kit.pdf). (A BibTex entry to cite to the paper can be found in the last section.)
+*GUI-VP Kit* was originally developed for use with [GUI-VP](https://github.com/ics-jku/GUI-VP), which was introduced together with *GUI-VP Kit* at the *ACM Great Lakes Symposium on VLSI*, by Manfred Schlägl and Daniel Große with [GUI-VP Kit: A RISC-V VP meets Linux graphics - enabling interactive graphical application development](https://ics.jku.at/files/2023GLSVLSI_GUI-VP_Kit.pdf). (A BibTex entry to cite the paper can be found in the last section.)
 However, since the integration of the full functionality of *GUI-VP* into *RISC-VP++* in 2023, *GUI-VP Kit* uses *RISC-VP++* for simulation.
 
 *GUI-VP Kit* and *RISCV-VP++* were created and are maintained at the [Institute for Complex Systems](https://ics.jku.at/), Johannes Kepler University, Linz.
