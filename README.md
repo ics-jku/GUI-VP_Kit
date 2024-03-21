@@ -350,6 +350,12 @@ This is especially useful for transferring data or software to the system runnin
 mount 10.0.0.1:/srv/nfs_for_vp /mnt -o nolock
 ```
 
+**Note: If the above mount fails, it may be because the server only supports NFSv4, which is the case with some Linux distributions. In this case, please use the following command**
+
+```
+mount 10.0.0.1:/srv/nfs_for_vp /mnt -o nolock,vers=4
+```
+
 The host directory */srv/nfs_for_vp* is now accessible on the system inside the vp at */mnt*.
 Changes to directory are visible in almost real time on both systems.
 
