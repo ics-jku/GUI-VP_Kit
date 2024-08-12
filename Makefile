@@ -25,7 +25,7 @@ help:
 	@echo "VP Arguments:"
 	@echo $(VP_ARGS)
 	@echo "Can be overriden by user"
-	@echo "Example: VP_ARGS=\"--tlm-global-quantum=100\" make run_rv32_sc"
+	@echo "Example: VP_ARGS=\"$(VP_ARGS)\" make run_rv32_sc"
 	@echo
 
 all: build
