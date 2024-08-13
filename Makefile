@@ -92,6 +92,7 @@ clean:
 	- $(MAKE) clean -C buildroot_rv32
 	- rm -rf dt/*.dtb
 	- rm -rf .stamp/buildroot_config
+	- rm -rf .stamp/buildroot_get_sources
 	- rm -rf .stamp/buildroot_rv??_build
 
 distclean:
@@ -145,9 +146,14 @@ distclean:
 	cp configs/linux_rv64.config buildroot_rv64
 	@touch $@
 
-.stamp/buildroot_rv32_build: .stamp/buildroot_config
-	@echo " + BUILD BUILDROOT FOR RV32"
+.stamp/buildroot_get_sources: .stamp/buildroot_config
+	@echo " + GET BUILDROOT PACKAGE SOURCES"
 	make -C buildroot_rv32 source
+	make -C buildroot_rv64 source
+	@touch $@
+
+.stamp/buildroot_rv32_build: .stamp/buildroot_get_sources
+	@echo " + BUILD BUILDROOT FOR RV32"
 	make -C buildroot_rv32
 	make -C buildroot_rv32 opensbi-rebuild
 	mkdir -p $(MRAM_IMAGE_DIR)
@@ -155,9 +161,8 @@ distclean:
 	cp buildroot_rv32/output/images/rootfs.squashfs $(MRAM_IMAGE_DIR)/mram_rv32_root.img
 	@touch $@
 
-.stamp/buildroot_rv64_build: .stamp/buildroot_config
+.stamp/buildroot_rv64_build: .stamp/buildroot_get_sources
 	@echo " + BUILD BUILDROOT FOR RV64"
-	make -C buildroot_rv64 source
 	make -C buildroot_rv64
 	make -C buildroot_rv64 opensbi-rebuild
 	mkdir -p $(MRAM_IMAGE_DIR)
