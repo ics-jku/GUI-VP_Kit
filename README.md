@@ -195,7 +195,7 @@ Other demo applications:
  * Classic X demo: ```xeyes```
  * X wall clocks: ```xclock``` and ```oclock```
  * X Calculator: ```xcalc```
- * A simple window manager: ```fluxbox```
+ * Lightweight window managers: ```openbox``` and ```fluxbox```
 
 
 ### Direct framebuffer and SDL
