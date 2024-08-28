@@ -223,6 +223,8 @@ Example: Run prboom demo with 320x200 resolution
 
 prboom has been extended to output statistics about frames per second (milli fps) and instructions per frame (ipf) on the console. Here an example of of prboom statistics output on linux-rv32-sc:
 ```
+/usr/games/prboom -width 320 -height 200 -rendering_stats2
+
 ...
 STAT: INIT -> START WARMUP
 STAT: WARMUP COMPLETE -> RUNNING
