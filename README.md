@@ -216,9 +216,9 @@ Example: Show the RISC-V Logo:
 fbv /var/www/riscv-color.jpg
 ```
 
-Example: Run prboom demo with 350x250 resolution
+Example: Run prboom demo with 320x200 resolution
 ```
-/usr/games/prboom -width 350 -height 250
+/usr/games/prboom -width 320 -height 200
 ```
 
 prboom has been extended to output statistics about frames per second (milli fps) and instructions per frame (ipf) on the console. Here an example of of prboom statistics output on linux-rv32-sc:
