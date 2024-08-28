@@ -1,0 +1,62 @@
+From bcb83cc8365bb0284844355c533cfef07a7893c0 Mon Sep 17 00:00:00 2001
+From: Manfred SCHLAEGL <manfred.schlaegl@gmx.at>
+Date: Wed, 28 Aug 2024 17:39:53 +0200
+Subject: [PATCH 3/3] Stats: enable statistics with command line parameter
+ "-rendering_stats2"
+
+---
+ src/d_main.c | 3 +++
+ src/r_main.c | 3 ++-
+ src/r_main.h | 1 +
+ 3 files changed, 6 insertions(+), 1 deletion(-)
+
+diff --git a/src/d_main.c b/src/d_main.c
+index 6d8493e..38a8985 100644
+--- a/src/d_main.c
++++ b/src/d_main.c
+@@ -1560,6 +1560,9 @@ static void D_DoomMainSetup(void)
+   lprintf(LO_INFO,"HU_Init: Setting up heads up display.\n");
+   HU_Init();
+ 
++  if (M_CheckParm("-rendering_stats2"))
++    rendering_stats2 = true;
++
+   if (!(M_CheckParm("-nodraw") && M_CheckParm("-nosound")))
+     I_InitGraphics();
+ 
+diff --git a/src/r_main.c b/src/r_main.c
+index 72d42e0..9789528 100644
+--- a/src/r_main.c
++++ b/src/r_main.c
+@@ -536,6 +536,7 @@ int autodetect_hom = 0;       // killough 2/7/98: HOM autodetection flag
+ int rendered_visplanes, rendered_segs, rendered_vissprites;
+ /* enable stats by default */
+ boolean rendering_stats = 0;
++boolean rendering_stats2 = 0;
+ 
+ /* NOTE: ShowStats2 works only with SDL and on RISC-V! */
+ 
+@@ -769,7 +770,7 @@ void R_RenderPlayerView (player_t* player)
+   }
+ 
+   if (rendering_stats) R_ShowStats();
+-  R_ShowStats2();
++  if (rendering_stats2) R_ShowStats2();
+ 
+   R_RestoreInterpolations();
+ }
+diff --git a/src/r_main.h b/src/r_main.h
+index 89a36ee..cefc3a8 100644
+--- a/src/r_main.h
++++ b/src/r_main.h
+@@ -67,6 +67,7 @@ extern int      validcount;
+ 
+ extern int rendered_visplanes, rendered_segs, rendered_vissprites;
+ extern boolean rendering_stats;
++extern boolean rendering_stats2;
+ 
+ //
+ // Lighting LUT.
+-- 
+2.39.2
+

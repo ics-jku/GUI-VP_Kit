@@ -1,7 +1,7 @@
-From 5a283f01844073d1744b76669417807a7a5c5a2f Mon Sep 17 00:00:00 2001
+From 2337448e6bab5ea2303279c21f4fbfbb8bb49825 Mon Sep 17 00:00:00 2001
 From: Manfred SCHLAEGL <manfred.schlaegl@gmx.at>
 Date: Fri, 10 Feb 2023 12:22:11 +0100
-Subject: [PATCH 1/2] Stats: Print fps stats on console
+Subject: [PATCH 1/3] Stats: Print fps stats on console
 
 Periodically calulate frames per second and print statistics
 (current, avg, min, max) on the console.
@@ -99,5 +99,5 @@ index cab5997..df5d78e 100644
    R_RestoreInterpolations();
  }
 -- 
-2.30.2
+2.39.2
 

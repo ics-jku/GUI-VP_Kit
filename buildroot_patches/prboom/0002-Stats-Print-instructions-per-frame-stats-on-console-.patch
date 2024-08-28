@@ -1,7 +1,7 @@
-From d9c83a13cf4f103b7cd588a163a70e85301d10e8 Mon Sep 17 00:00:00 2001
+From 37610cde45303451d699b7abdb9485776acf4ecf Mon Sep 17 00:00:00 2001
 From: Manfred SCHLAEGL <manfred.schlaegl@gmx.at>
 Date: Fri, 10 Feb 2023 13:23:05 +0100
-Subject: [PATCH 2/2] Stats: Print instructions per frame stats on console
+Subject: [PATCH 2/3] Stats: Print instructions per frame stats on console
  (WIP)
 
 Extended stats to also periodically print the number of instructions
@@ -132,5 +132,5 @@ index df5d78e..72d42e0 100644
  
  static void R_ShowStats(void)
 -- 
-2.30.2
+2.39.2
 
