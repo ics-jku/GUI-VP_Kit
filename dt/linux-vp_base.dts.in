@@ -126,6 +126,41 @@
 			status = "okay";
 		};
 
+		qspi0: spi@10040000 {
+			/* spi flash interface not supported yet */
+			compatible = "sifive,fu540-c000-spi", "sifive,spi0";
+			reg = <0x0 0x10040000 0x0 0x1000>;
+			interrupt-parent = <&plic0>;
+			interrupts = <51>;
+			clocks = <&refclk>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+			status = "okay";
+		};
+
+		qspi1: spi@10041000 {
+			/* spi flash interface not supported yet */
+			compatible = "sifive,fu540-c000-spi", "sifive,spi0";
+			reg = <0x0 0x10041000 0x0 0x1000>;
+			interrupt-parent = <&plic0>;
+			interrupts = <52>;
+			clocks = <&refclk>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+			status = "okay";
+		};
+
+		qspi2: spi@10050000 {
+			compatible = "sifive,fu540-c000-spi", "sifive,spi0";
+			reg = <0x0 0x10050000 0x0 0x1000>;
+			interrupt-parent = <&plic0>;
+			interrupts = <6>;
+			clocks = <&refclk>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+			status = "okay";
+		};
+
 		framebuffer0: framebuffer@11000000 {
 			compatible = "allwinner,simple-framebuffer", "simple-framebuffer";
 			reg = <0x0 0x11000000 0x0 0x1000000>;
