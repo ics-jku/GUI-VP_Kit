@@ -21,6 +21,7 @@ The project
  * can start the created rv32 and rv64 images on linux-vp(rv64 multicore), linux32-vp(rv32 multicore), linux-sc-vp(rv64 singlecore) and linux32-sc-vp(rv32 singlecore)
  * supports graphic output, mouse- and keyboard input via [Virtual Network Computing](https://en.wikipedia.org/wiki/Virtual_Network_Computing) (VNC) (see below)
  * supports networking between the host and the system inside the vp (see below)
+ * supports large storage devices (image files) as virtual sd-card (see below)
 
 ## Build & Run
 This section explains how to build the project and boot the vp.
@@ -360,6 +361,40 @@ mount 10.0.0.1:/srv/nfs_for_vp /mnt -o nolock,vers=4
 
 The host directory */srv/nfs_for_vp* is now accessible on the system inside the vp at */mnt*.
 Changes to directory are visible in almost real time on both systems.
+
+## Virtual SD-Card support
+The RISC-V VP++ Linux configurations support virtual SD-Cards backed by an image file.
+
+An SD-Card image can be attached via the VP parameter ```--sd-card-image <image-name>```.
+The size of the image must be a multiple of 512 bytes.
+
+### Example: Attaching a new, empty SD-Card image
+
+ 1. Create an empty sd-card image with 100MiB
+    ```
+    dd if=/dev/zero of=sd-card.img bs=1024 count=102400
+    ```
+ 1. Start the vp with the attached image using the VP parameter ```--sd-card-image sd-card.img```
+    ```
+    VP_ARGS="--use-data-dmi --tlm-global-quantum=1000000 --tun-device tun10 --sd-card-image sd-card.img" make run_rv64_sc
+    ```
+
+**The card is now detected on Linux bootup and available as ```/dev/mmcblk0``` from the Linux system running inside the VP.**
+```
+...
+[    7.070696] mmc0: new SDHC card on SPI
+[    7.276887] mmcblk0: mmc0:0000 RVVP2 100 MiB
+...
+```
+
+The card can now, for example be
+ * formatted with a filesystem: ```mkfs.ext4 /dev/mmcblk0```,
+ * mounted: ```mount /dev/mmcblk0 /mnt```,
+ * partitioned: ```fdisk /dev/mmcblk0```,
+ * ...
+
+The image file will retain any changes made to the SD-Card from inside the VP.
+The image file can also be manipulated on the host system (e.g. format, mount, ...) when the VP is not running.
 
 ## Using the Buildroot Toolchain for external Projects
 The C/C++ toolchain build by buildroot provides support for external use (e.g. to build own projects outside of buildroot).

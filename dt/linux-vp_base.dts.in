@@ -159,6 +159,17 @@
 			#address-cells = <1>;
 			#size-cells = <0>;
 			status = "okay";
+
+			mmc@0 {
+				compatible = "mmc-spi-slot";
+				reg = <0>;
+				spi-max-frequency = <20000000>;
+				voltage-ranges = <3300 3300>;
+				disable-wp;
+				/* dt includes not handled yet */
+				//gpios = <&gpio 11 GPIO_ACTIVE_LOW>;
+				gpios = <&gpio 11 1>;
+			};
 		};
 
 		framebuffer0: framebuffer@11000000 {
