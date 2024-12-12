@@ -95,11 +95,7 @@
 			compatible = "sifive,fu540-c000-uart", "sifive,uart0";
 			reg = <0x0 0x10010000 0x0 0x1000>;
 			interrupt-parent = <&plic0>;
-			/*
-			 * TODO: inconsistent with original fu540 (int 4)
-			 * kept for compatiblity with older RISC-V VPs
-			 */
-			interrupts = <3>;
+			interrupts = <4>;
 			clocks = <&refclk>;
 			current-speed = <115200>;
 			status = "okay";
@@ -109,11 +105,7 @@
 			compatible = "sifive,fu540-c000-uart", "sifive,uart0";
 			reg = <0x0 0x10011000 0x0 0x1000>;
 			interrupt-parent = <&plic0>;
-			/*
-			 * TODO: inconsistent with original fu540 (int 4)
-			 * kept for compatiblity with older RISC-V VPs
-			 */
-			interrupts = <4>;
+			interrupts = <5>;
 			clocks = <&refclk>;
 			current-speed = <115200>;
 			status = "okay";
