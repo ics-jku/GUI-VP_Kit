@@ -91,6 +91,13 @@
 			riscv,ndev = <53>;
 		};
 
+		rng: hwrng@10001000 {
+			compatible = "timeriomem_rng";
+			reg = <0x0 0x10001000 0x0 0x4>;
+			period = <1>;
+			quality = <100>;
+		};
+
 		uart0: serial@10010000 {
 			compatible = "sifive,fu540-c000-uart", "sifive,uart0";
 			reg = <0x0 0x10010000 0x0 0x1000>;
