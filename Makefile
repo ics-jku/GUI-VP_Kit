@@ -13,8 +13,8 @@ MRAM_IMAGE_DIR=runtime_mram
 VP_ARGS?=--use-data-dmi --tlm-global-quantum=1000000 --tun-device tun10
 BR_DTC="output/host/bin/dtc"
 
-.PHONY: help all get dtb build_rv32 build_rv64 build vp-rebuild \
-	buildroot_rv32-rebuild buildroot_rv64-rebuild \
+.PHONY: help all get dtb build_rv32 build_rv64 build vp-rebuild buildroot-reconfigure	\
+	buildroot_rv32-rebuild buildroot_rv64-rebuild buildroot-rebuild						\
 	run_rv32 run_rv64 clean distclean
 
 help:
@@ -42,6 +42,10 @@ vp-rebuild:
 	rm -rf .stamp/vp_build
 	make .stamp/vp_build
 
+buildroot-reconfigure:
+	rm -rf .stamp/buildroot_config
+	make .stamp/buildroot_config
+
 buildroot_rv32-rebuild:
 	rm -rf .stamp/buildroot_rv32_build
 	make .stamp/buildroot_rv32_build
@@ -49,6 +53,8 @@ buildroot_rv32-rebuild:
 buildroot_rv64-rebuild:
 	rm -rf .stamp/buildroot_rv64_build
 	make .stamp/buildroot_rv64_build
+
+buildroot-rebuild: buildroot_rv32-rebuild buildroot_rv64-rebuild
 
 build_all_dts: dt/linux-vp_rv32_sc.dts dt/linux-vp_rv64_sc.dts dt/linux-vp_rv32_mc.dts dt/linux-vp_rv64_mc.dts
 
