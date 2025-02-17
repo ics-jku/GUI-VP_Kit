@@ -10,7 +10,7 @@ VP_GIT=https://github.com/ics-jku/$(VP_NAME).git
 VP_VERSION=master
 MRAM_IMAGE_DIR=runtime_mram
 # VP_ARGS can be overriden by user ($ VP_ARGS="..." make run_...)
-VP_ARGS?=--use-data-dmi --tlm-global-quantum=1000000 --tun-device tun10
+VP_ARGS?=--use-data-dmi --tlm-global-quantum=1000000 --use-dbbcache --use-lscache --tun-device tun10
 BR_DTC="output/host/bin/dtc"
 
 .PHONY: help all get dtb build_rv32 build_rv64 build vp-rebuild buildroot-reconfigure	\
