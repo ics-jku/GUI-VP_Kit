@@ -54,7 +54,7 @@
 
 	memory@80000000 {
 		device_type = "memory";
-		reg = <0x0 0x80000000 0x0 @MEM_SIZE@>;
+		reg = <0x0 0x80000000 @MEM_SIZE_DT@>;
 	};
 
 	refclk: refclk {

@@ -2,9 +2,10 @@
 
 TYPE="$1"
 NUM_CORES="$2"
+MEM_SIZE="$3"
 
 usage() {
-	echo "Usage: $0 rv32|rv64 <num worker cores>"
+	echo "Usage: $0 rv32|rv64 <num worker cores> <memory-size>"
 }
 
 cd $(dirname $0)
@@ -13,7 +14,6 @@ if [[ $TYPE == rv32 ]] ; then
 	RISCV_ISA_CPU0="rv32imac"
 	RISCV_ISA="rv32imafdcv"
 	MMU_TYPE="riscv,sv32"
-	MEM_SIZE="0x40000000"	# 1 GiB
 
 	# on RV32 linux vmalloc size is very limited
 	# -> only small memory areas (images sizes) possible
@@ -24,7 +24,6 @@ elif [[ $TYPE == rv64 ]] ; then
 	RISCV_ISA_CPU0="rv64imac"
 	RISCV_ISA="rv64imafdcv"
 	MMU_TYPE="riscv,sv39"
-	MEM_SIZE="0x80000000"	# 2 GiB
 	ROOTFSTYPE="romfs"
 	MRAM_SIZE="0x20000000"	# 512MiB
 else
@@ -38,6 +37,14 @@ if [[ -z $NUM_CORES ]] ; then
 	usage
 	exit 1
 fi
+
+if [[ -z $MEM_SIZE ]] ; then
+	echo "Missing memory size!"
+	usage
+	exit 1
+fi
+
+MEM_SIZE_DT="$(printf "0x%X 0x%.8X" $((MEM_SIZE>>32)) $((MEM_SIZE & ((1<<32)-1))))"
 
 CPUS_TEMP=$(mktemp)
 
@@ -67,7 +74,7 @@ cat linux-vp_base.dts.in | sed \
 	-e "s/@RISCV_ISA@/\"$RISCV_ISA\"/g"		\
 	-e "s/@CPU_MAP@/$CPU_MAP/g"			\
 	-e "s/@ROOTFSTYPE@/$ROOTFSTYPE/g"		\
-	-e "s/@MEM_SIZE@/$MEM_SIZE/g"			\
+	-e "s/@MEM_SIZE_DT@/$MEM_SIZE_DT/g"			\
 	-e "s/@MRAM_SIZE@/$MRAM_SIZE/g"			\
 	-e "s/@CLINT_INT_EXT@/$CLINT_INT_EXT/g"		\
 	-e "s/@PLIC_INT_EXT@/$PLIC_INT_EXT/g"		\

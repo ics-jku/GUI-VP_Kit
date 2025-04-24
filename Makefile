@@ -13,6 +13,11 @@ MRAM_IMAGE_DIR=runtime_mram
 VP_ARGS?=--use-data-dmi --tlm-global-quantum=1000000 --use-dbbcache --use-lscache --tun-device tun10
 BR_DTC="output/host/bin/dtc"
 
+# memory configuration (vp paramter + device tree)
+MEM_SIZE_RV32=$(shell echo $$((1 * 1024*1024*1024)))	# 1 GiB
+MEM_SIZE_RV64=$(shell echo $$((2 * 1024*1024*1024)))	# 2 GiB
+
+
 .PHONY: help all get dtb build_rv32 build_rv64 build vp-rebuild buildroot-reconfigure	\
 	buildroot_rv32-rebuild buildroot_rv64-rebuild buildroot-rebuild						\
 	run_rv32 run_rv64 clean distclean
@@ -67,6 +72,7 @@ run_rv32_sc: build_rv32
 		--kernel-file buildroot_rv32/output/images/Image		\
 		--mram-root-image $(MRAM_IMAGE_DIR)/mram_rv32_root.img	\
 		--mram-data-image $(MRAM_IMAGE_DIR)/mram_rv32_data.img	\
+		--memory-size $(MEM_SIZE_RV32)							\
 		buildroot_rv32/output/images/fw_jump.elf
 
 run_rv64_sc: build_rv64
@@ -76,6 +82,7 @@ run_rv64_sc: build_rv64
 		--kernel-file buildroot_rv64/output/images/Image		\
 		--mram-root-image $(MRAM_IMAGE_DIR)/mram_rv64_root.img	\
 		--mram-data-image $(MRAM_IMAGE_DIR)/mram_rv64_data.img	\
+		--memory-size $(MEM_SIZE_RV64)							\
 		buildroot_rv64/output/images/fw_jump.elf
 
 run_rv32_mc: build_rv32
@@ -85,6 +92,7 @@ run_rv32_mc: build_rv32
 		--kernel-file buildroot_rv32/output/images/Image		\
 		--mram-root-image $(MRAM_IMAGE_DIR)/mram_rv32_root.img	\
 		--mram-data-image $(MRAM_IMAGE_DIR)/mram_rv32_data.img	\
+		--memory-size $(MEM_SIZE_RV32)							\
 		buildroot_rv32/output/images/fw_jump.elf
 
 run_rv64_mc: build_rv64
@@ -94,6 +102,7 @@ run_rv64_mc: build_rv64
 		--kernel-file buildroot_rv64/output/images/Image		\
 		--mram-root-image $(MRAM_IMAGE_DIR)/mram_rv64_root.img	\
 		--mram-data-image $(MRAM_IMAGE_DIR)/mram_rv64_data.img	\
+		--memory-size $(MEM_SIZE_RV64)							\
 		buildroot_rv64/output/images/fw_jump.elf
 
 clean:
@@ -184,21 +193,21 @@ distclean:
 
 ## DEVICETREE
 
-dt/linux-vp_rv32_sc.dts: dt/linux-vp_base.dts.in dt/linux-vp_cpu.dts.in dt/gen_dts.sh
+dt/linux-vp_rv32_sc.dts: Makefile dt/linux-vp_base.dts.in dt/linux-vp_cpu.dts.in dt/gen_dts.sh
 	@echo " + CREATE VP RV32 SINGLECORE DTS: $@"
-	./dt/gen_dts.sh rv32 1 > $@
+	./dt/gen_dts.sh rv32 1 $(MEM_SIZE_RV32) > $@
 
-dt/linux-vp_rv64_sc.dts: dt/linux-vp_base.dts.in dt/linux-vp_cpu.dts.in dt/gen_dts.sh
+dt/linux-vp_rv64_sc.dts: Makefile dt/linux-vp_base.dts.in dt/linux-vp_cpu.dts.in dt/gen_dts.sh
 	@echo " + CREATE VP RV64 SINGLECORE DTS: $@"
-	./dt/gen_dts.sh rv64 1 > $@
+	./dt/gen_dts.sh rv64 1 $(MEM_SIZE_RV64) > $@
 
-dt/linux-vp_rv32_mc.dts: dt/linux-vp_base.dts.in dt/linux-vp_cpu.dts.in dt/gen_dts.sh
+dt/linux-vp_rv32_mc.dts: Makefile dt/linux-vp_base.dts.in dt/linux-vp_cpu.dts.in dt/gen_dts.sh
 	@echo " + CREATE VP RV32 MULTICORE DTS: $@"
-	./dt/gen_dts.sh rv32 4 > $@
+	./dt/gen_dts.sh rv32 4 $(MEM_SIZE_RV32) > $@
 
-dt/linux-vp_rv64_mc.dts: dt/linux-vp_base.dts.in dt/linux-vp_cpu.dts.in dt/gen_dts.sh
+dt/linux-vp_rv64_mc.dts: Makefile dt/linux-vp_base.dts.in dt/linux-vp_cpu.dts.in dt/gen_dts.sh
 	@echo " + CREATE VP RV64 MULTICORE DTS: $@"
-	./dt/gen_dts.sh rv64 4 > $@
+	./dt/gen_dts.sh rv64 4 $(MEM_SIZE_RV64) > $@
 
 dt/linux-vp_rv32_sc.dtb: dt/linux-vp_rv32_sc.dts .stamp/buildroot_rv32_build
 	@echo " + CREATE VP RV32 SINGLECORE DTB: $@"
