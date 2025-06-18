@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: (GPL-2.0 OR MIT)
 /*
- * Copyright (c) 2022-2023 Manfred SCHLAEGL <manfred.schlaegl@gmx.at>
+ * Copyright (c) 2022-2025 Manfred SCHLAEGL <manfred.schlaegl@gmx.at>
  * Copyright (c) 2018-2019 SiFive, Inc
  */
 
@@ -31,7 +31,9 @@
 			compatible = "sifive,e51", "sifive,rocket0", "riscv";
 			device_type = "cpu";
 			reg = <0>;
-			riscv,isa = @RISCV_ISA_CPU0@;
+			riscv,isa = @RISCV_ISA_CPU0_DT@;
+			riscv,isa-base = @RISCV_ISA_BASE@;
+			riscv,isa-extensions = @RISCV_ISA_EXTENSIONS_CPU0_DT@;
 			clock-frequency = <100000000>;
 			status = "disabled";
 			cpu0_intc: interrupt-controller {

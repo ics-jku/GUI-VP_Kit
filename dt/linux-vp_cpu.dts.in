@@ -3,7 +3,9 @@
 			device_type = "cpu";
 			mmu-type = @MMU_TYPE@;
 			reg = <@CPU_NR@>;
-			riscv,isa = @RISCV_ISA@;
+			riscv,isa = @RISCV_ISA_DT@;
+			riscv,isa-base = @RISCV_ISA_BASE@;
+			riscv,isa-extensions = @RISCV_ISA_EXTENSIONS_DT@;
 			clock-frequency = <100000000>;
 			cpu@CPU_NR@_intc: interrupt-controller {
 				#interrupt-cells = <1>;

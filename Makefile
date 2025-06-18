@@ -4,7 +4,7 @@
 #
 
 BUILDROOT_GIT=git://git.buildroot.net/buildroot
-BUILDROOT_VERSION=2024.05.1
+BUILDROOT_VERSION=2025.05
 VP_NAME=riscv-vp-plusplus
 VP_GIT=https://github.com/ics-jku/$(VP_NAME).git
 VP_VERSION=master
@@ -175,7 +175,6 @@ distclean:
 	@echo " + BUILD BUILDROOT FOR RV32"
 	make -C buildroot_rv32
 	mkdir -p $(MRAM_IMAGE_DIR)
-	# NOTE: Since RV32 rootfs is restricted to 64MiB we have to use the compressed squashfs here
 	cp buildroot_rv32/output/images/rootfs.squashfs $(MRAM_IMAGE_DIR)/mram_rv32_root.img
 	@touch $@
 
@@ -183,7 +182,7 @@ distclean:
 	@echo " + BUILD BUILDROOT FOR RV64"
 	make -C buildroot_rv64
 	mkdir -p $(MRAM_IMAGE_DIR)
-	cp buildroot_rv64/output/images/rootfs.romfs $(MRAM_IMAGE_DIR)/mram_rv64_root.img
+	cp buildroot_rv64/output/images/rootfs.squashfs $(MRAM_IMAGE_DIR)/mram_rv64_root.img
 	@touch $@
 
 

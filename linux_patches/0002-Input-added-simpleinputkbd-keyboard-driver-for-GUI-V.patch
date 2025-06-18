@@ -1,4 +1,4 @@
-From 836e790c1be4dda94d3eb59f45b98a9dffdfb097 Mon Sep 17 00:00:00 2001
+From ae4c5b803947ab3e5ed6d564cbdbd174782462f7 Mon Sep 17 00:00:00 2001
 From: Manfred SCHLAEGL <manfred.schlaegl@gmx.at>
 Date: Tue, 7 Mar 2023 13:29:49 +0100
 Subject: [PATCH 2/2] Input: added simpleinputkbd keyboard driver for GUI-VP
@@ -14,10 +14,10 @@ Signed-off-by: Manfred SCHLAEGL <manfred.schlaegl@gmx.at>
  create mode 100644 drivers/input/keyboard/simpleinputkbd.c
 
 diff --git a/drivers/input/keyboard/Kconfig b/drivers/input/keyboard/Kconfig
-index a20ee693b22b..867d5c12ea2b 100644
+index 721ab69e84ac..11ccf8cef667 100644
 --- a/drivers/input/keyboard/Kconfig
 +++ b/drivers/input/keyboard/Kconfig
-@@ -812,4 +812,13 @@ config KEYBOARD_CYPRESS_SF
+@@ -797,4 +797,13 @@ config KEYBOARD_CYPRESS_SF
  	  To compile this driver as a module, choose M here: the
  	  module will be called cypress-sf.
  
@@ -32,10 +32,10 @@ index a20ee693b22b..867d5c12ea2b 100644
 +
  endif
 diff --git a/drivers/input/keyboard/Makefile b/drivers/input/keyboard/Makefile
-index 721936e90290..1a6405e082e1 100644
+index 1e0721c30709..06ccc05aa9fc 100644
 --- a/drivers/input/keyboard/Makefile
 +++ b/drivers/input/keyboard/Makefile
-@@ -72,3 +72,4 @@ obj-$(CONFIG_KEYBOARD_TEGRA)		+= tegra-kbc.o
+@@ -70,3 +70,4 @@ obj-$(CONFIG_KEYBOARD_TEGRA)		+= tegra-kbc.o
  obj-$(CONFIG_KEYBOARD_TM2_TOUCHKEY)	+= tm2-touchkey.o
  obj-$(CONFIG_KEYBOARD_TWL4030)		+= twl4030_keypad.o
  obj-$(CONFIG_KEYBOARD_XTKBD)		+= xtkbd.o
@@ -265,5 +265,5 @@ index 000000000000..43a63f0747ce
 +MODULE_LICENSE("GPL");
 +MODULE_ALIAS("platform:simpleinputkbd");
 -- 
-2.30.2
+2.39.5
 

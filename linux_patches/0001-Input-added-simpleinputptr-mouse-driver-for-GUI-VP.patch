@@ -1,4 +1,4 @@
-From 30319f7053876dc989ad5e817f20769c6d85687d Mon Sep 17 00:00:00 2001
+From 5d94d849f4aa843732ffa8729a13c7e8b3bd350f Mon Sep 17 00:00:00 2001
 From: Manfred SCHLAEGL <manfred.schlaegl@gmx.at>
 Date: Tue, 31 Jan 2023 15:28:56 +0100
 Subject: [PATCH 1/2] Input: added simpleinputptr mouse driver for GUI-VP
@@ -15,12 +15,12 @@ Signed-off-by: Manfred SCHLAEGL <manfred.schlaegl@gmx.at>
  create mode 100644 drivers/input/mouse/simpleinputptr.c
 
 diff --git a/drivers/input/mouse/Kconfig b/drivers/input/mouse/Kconfig
-index 63c9cda555c3..f113aa179813 100644
+index 833b643f0616..5a4ff39a98f1 100644
 --- a/drivers/input/mouse/Kconfig
 +++ b/drivers/input/mouse/Kconfig
-@@ -457,4 +457,13 @@ config MOUSE_NAVPOINT_PXA27x
+@@ -439,4 +439,13 @@ config MOUSE_SYNAPTICS_USB
  	  To compile this driver as a module, choose M here: the
- 	  module will be called navpoint.
+ 	  module will be called synaptics_usb.
  
 +config MOUSE_SIMPLEINPUT
 +	tristate "Simpleinput mouse driver for GUI-VP"
@@ -33,10 +33,10 @@ index 63c9cda555c3..f113aa179813 100644
 +
  endif
 diff --git a/drivers/input/mouse/Makefile b/drivers/input/mouse/Makefile
-index e49f08565076..41793982bca6 100644
+index a1336d5bee6f..fb076e2f3a4d 100644
 --- a/drivers/input/mouse/Makefile
 +++ b/drivers/input/mouse/Makefile
-@@ -24,6 +24,7 @@ obj-$(CONFIG_MOUSE_SERIAL)		+= sermouse.o
+@@ -22,6 +22,7 @@ obj-$(CONFIG_MOUSE_SERIAL)		+= sermouse.o
  obj-$(CONFIG_MOUSE_SYNAPTICS_I2C)	+= synaptics_i2c.o
  obj-$(CONFIG_MOUSE_SYNAPTICS_USB)	+= synaptics_usb.o
  obj-$(CONFIG_MOUSE_VSXXXAA)		+= vsxxxaa.o
@@ -294,5 +294,5 @@ index 000000000000..99f3e48bdba1
 +MODULE_LICENSE("GPL");
 +MODULE_ALIAS("platform:simpleinputptr");
 -- 
-2.30.2
+2.39.5
 
