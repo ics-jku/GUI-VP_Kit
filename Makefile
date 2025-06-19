@@ -174,8 +174,6 @@ distclean:
 .stamp/buildroot_rv32_build: .stamp/buildroot_get_sources
 	@echo " + BUILD BUILDROOT FOR RV32"
 	make -C buildroot_rv32
-	# TODO: opensbi-rebuild can be removed in the future
-	make -C buildroot_rv32 opensbi-rebuild
 	mkdir -p $(MRAM_IMAGE_DIR)
 	# NOTE: Since RV32 rootfs is restricted to 64MiB we have to use the compressed squashfs here
 	cp buildroot_rv32/output/images/rootfs.squashfs $(MRAM_IMAGE_DIR)/mram_rv32_root.img
@@ -184,8 +182,6 @@ distclean:
 .stamp/buildroot_rv64_build: .stamp/buildroot_get_sources
 	@echo " + BUILD BUILDROOT FOR RV64"
 	make -C buildroot_rv64
-	# TODO: opensbi-rebuild can be removed in the future
-	make -C buildroot_rv64 opensbi-rebuild
 	mkdir -p $(MRAM_IMAGE_DIR)
 	cp buildroot_rv64/output/images/rootfs.romfs $(MRAM_IMAGE_DIR)/mram_rv64_root.img
 	@touch $@
