@@ -7,7 +7,7 @@ BUILDROOT_GIT=git://git.buildroot.net/buildroot
 BUILDROOT_VERSION=2024.05.1
 VP_NAME=riscv-vp-plusplus
 VP_GIT=https://github.com/ics-jku/$(VP_NAME).git
-VP_VERSION=fc19f747c4664fd80d1580f24c66ac2bf5648ab8
+VP_VERSION=master
 MRAM_IMAGE_DIR=runtime_mram
 # VP_ARGS can be overriden by user ($ VP_ARGS="..." make run_...)
 VP_ARGS?=--use-data-dmi --tlm-global-quantum=1000000 --use-dbbcache --use-lscache --tun-device tun10
