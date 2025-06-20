@@ -27,9 +27,6 @@ The project
  * Linux kernel: The RVV unaligned access probing (```CONFIG_RISCV_PROBE_VECTOR_UNALIGNED_ACCESS```) introduced in linux-6.13 is currently broken on RISC-V VP++ (hash fc19f747c4).
    * Workaround: Probing is disabled (by using ```CONFIG_RISCV_EFFICIENT_VECTOR_UNALIGNED_ACCESS```).
    * TODO: Fix probing on VP and re-enable in Kernel configurations.
- * OpenSBI: Support for OpenSBI versions > 1.3.1 is currently broken.
-   * Workaround: OpenSBI version not bumped to newer version (currently used version is 1.3.1).
-   * TODO: Fix support for and bump to newest version (at least 1.6)
 
 ## Build & Run
 This section explains how to build the project and boot the vp.
