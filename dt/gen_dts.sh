@@ -75,7 +75,7 @@ gen_riscv_isa_extensions_dt() {
 }
 	
 RISCV_ISA_CPU0_DT="$(gen_riscv_isa_dt ${RISCV_ISA_BASE} "${RISCV_ISA_EXTENSIONS_CPU0}")"
-RISCV_ISA_DT="$(gen_riscv_isa_dt ${RISCV_ISA_BASE} "${RISCV_ISA_EXTENSIONS_CPU0}")"
+RISCV_ISA_DT="$(gen_riscv_isa_dt ${RISCV_ISA_BASE} "${RISCV_ISA_EXTENSIONS}")"
 RISCV_ISA_EXTENSIONS_CPU0_DT="$(gen_riscv_isa_extensions_dt ${RISCV_ISA_BASE} "${RISCV_ISA_EXTENSIONS_CPU0}")"
 RISCV_ISA_EXTENSIONS_DT="$(gen_riscv_isa_extensions_dt ${RISCV_ISA_BASE} "${RISCV_ISA_EXTENSIONS}")"
 
