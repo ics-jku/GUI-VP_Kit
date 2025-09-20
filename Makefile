@@ -11,6 +11,9 @@ VP_VERSION=master
 MRAM_IMAGE_DIR=runtime_mram
 # VP_ARGS can be overriden by user ($ VP_ARGS="..." make run_...)
 VP_ARGS?=--use-data-dmi --tlm-global-quantum=1000000 --use-dbbcache --use-lscache --tun-device tun10
+
+LINUX_DT_GEN=$(VP_NAME)/vp/build/bin/linux-dt-gen.py
+DT_BOOTARGS="earlycon=sbi root=/dev/mtdblock0 rootfstype=squashfs ro"
 BR_DTC="output/host/bin/dtc"
 
 # memory configuration (vp paramter + device tree)
@@ -188,21 +191,46 @@ distclean:
 
 ## DEVICETREE
 
-dt/linux-vp_rv32_sc.dts: Makefile dt/linux-vp_base.dts.in dt/linux-vp_cpu.dts.in dt/gen_dts.sh
+dt/linux-vp_rv32_sc.dts: Makefile $(LINUX_DT_GEN)
 	@echo " + CREATE VP RV32 SINGLECORE DTS: $@"
-	./dt/gen_dts.sh rv32 1 $(MEM_SIZE_RV32) > $@
+	@mkdir -p `dirname $@`
+	$(LINUX_DT_GEN)							\
+		--quiet								\
+		--bootargs $(DT_BOOTARGS)			\
+		--target linux32-sc-vp				\
+		--memory-size $(MEM_SIZE_RV32)		\
+		--output-file $@
 
-dt/linux-vp_rv64_sc.dts: Makefile dt/linux-vp_base.dts.in dt/linux-vp_cpu.dts.in dt/gen_dts.sh
+dt/linux-vp_rv64_sc.dts: Makefile $(LINUX_DT_GEN)
 	@echo " + CREATE VP RV64 SINGLECORE DTS: $@"
-	./dt/gen_dts.sh rv64 1 $(MEM_SIZE_RV64) > $@
+	@mkdir -p `dirname $@`
+	$(LINUX_DT_GEN)							\
+		--quiet								\
+		--bootargs $(DT_BOOTARGS)			\
+		--target linux-sc-vp				\
+		--memory-size $(MEM_SIZE_RV64)		\
+		--output-file $@
 
-dt/linux-vp_rv32_mc.dts: Makefile dt/linux-vp_base.dts.in dt/linux-vp_cpu.dts.in dt/gen_dts.sh
+dt/linux-vp_rv32_mc.dts: Makefile $(LINUX_DT_GEN)
 	@echo " + CREATE VP RV32 MULTICORE DTS: $@"
-	./dt/gen_dts.sh rv32 4 $(MEM_SIZE_RV32) > $@
+	@mkdir -p `dirname $@`
+	$(LINUX_DT_GEN)							\
+		--quiet								\
+		--bootargs $(DT_BOOTARGS)			\
+		--target linux32-vp					\
+		--memory-size $(MEM_SIZE_RV32)		\
+		--output-file $@
 
-dt/linux-vp_rv64_mc.dts: Makefile dt/linux-vp_base.dts.in dt/linux-vp_cpu.dts.in dt/gen_dts.sh
+
+dt/linux-vp_rv64_mc.dts: Makefile $(LINUX_DT_GEN)
 	@echo " + CREATE VP RV64 MULTICORE DTS: $@"
-	./dt/gen_dts.sh rv64 4 $(MEM_SIZE_RV64) > $@
+	@mkdir -p `dirname $@`
+	$(LINUX_DT_GEN)							\
+		--quiet								\
+		--bootargs $(DT_BOOTARGS)			\
+		--target linux-vp					\
+		--memory-size $(MEM_SIZE_RV64)		\
+		--output-file $@
 
 dt/linux-vp_rv32_sc.dtb: dt/linux-vp_rv32_sc.dts .stamp/buildroot_rv32_build
 	@echo " + CREATE VP RV32 SINGLECORE DTB: $@"
