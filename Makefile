@@ -3,8 +3,8 @@
 # SPDX-License-Identifier: BSD 3-clause "New" or "Revised" License
 #
 
-BUILDROOT_GIT=git://git.buildroot.net/buildroot
-BUILDROOT_VERSION=2025.05
+BUILDROOT_GIT=https://gitlab.com/buildroot.org/buildroot.git
+BUILDROOT_VERSION=2026.02
 VP_NAME=riscv-vp-plusplus
 VP_GIT=https://github.com/ics-jku/$(VP_NAME).git
 VP_VERSION=master

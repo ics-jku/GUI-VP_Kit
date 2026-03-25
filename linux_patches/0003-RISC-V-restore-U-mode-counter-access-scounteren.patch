@@ -1,0 +1,54 @@
+From dbf2cf6fe1480e12508944e1e5b8ce1218ce6844 Mon Sep 17 00:00:00 2001
+From: Manfred SCHLAEGL <manfred.schlaegl@gmx.at>
+Date: Thu, 26 Mar 2026 10:08:25 +0100
+Subject: [PATCH 3/3] RISC-V: restore U-mode counter access (scounteren)
+
+In commit 5bc409786752 ("RISC-V: KVM: Remove scounteren initialization")
+the initialization of scounteren was moved from the hypervisor (KVM) to
+the supervisor -- a well-argued change. However, the same change also
+restricted access to performance counters without comment: previously,
+scounteren was set to 0x7 (0b111), allowing U-mode (userspace) access
+to instret (IR), cycle (CY), and time (TM). After the change,
+scounteren is set to 0x2 (0b010), which allows access only to time (TM)
+and prohibits access to instret (IR) and cycle (CY). This breaks user-
+space programs that directly use these performance counters.
+
+This change restores the prior behavior: scounteren is set to 0x7,
+which re-enables U-mode (userspace) access to instret (IR), cycle (CY),
+and time (TM).
+
+Fixes: 5bc409786752 ("RISC-V: KVM: Remove scounteren initialization")
+Signed-off-by: Manfred SCHLAEGL <manfred.schlaegl@gmx.at>
+---
+ arch/riscv/kernel/head.S | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/arch/riscv/kernel/head.S b/arch/riscv/kernel/head.S
+index bdf3352acf4c..e80ea0d998a4 100644
+--- a/arch/riscv/kernel/head.S
++++ b/arch/riscv/kernel/head.S
+@@ -132,8 +132,8 @@ secondary_start_sbi:
+ 	csrw CSR_IP, zero
+ 
+ #ifndef CONFIG_RISCV_M_MODE
+-	/* Enable time CSR */
+-	li t0, 0x2
++	/* Enable CY, TM, and IR counters in U mode */
++	li t0, 0x7
+ 	csrw CSR_SCOUNTEREN, t0
+ #endif
+ 
+@@ -233,8 +233,8 @@ SYM_CODE_START(_start_kernel)
+ 	 */
+ 	csrr a0, CSR_MHARTID
+ #else
+-	/* Enable time CSR */
+-	li t0, 0x2
++	/* Enable CY, TM, and IR counters in U mode */
++	li t0, 0x7
+ 	csrw CSR_SCOUNTEREN, t0
+ #endif /* CONFIG_RISCV_M_MODE */
+ 
+-- 
+2.47.3
+
