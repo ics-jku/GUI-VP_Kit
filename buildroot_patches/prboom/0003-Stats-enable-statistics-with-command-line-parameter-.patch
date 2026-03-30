@@ -1,4 +1,4 @@
-From 05c0021837ba312233140254f0058a2c53ccb8a0 Mon Sep 17 00:00:00 2001
+From 954f179a5ea9eccdd4e771005003bd5028ef4c0e Mon Sep 17 00:00:00 2001
 From: Manfred SCHLAEGL <manfred.schlaegl@gmx.at>
 Date: Wed, 28 Aug 2024 17:39:53 +0200
 Subject: [PATCH 3/3] Stats: enable statistics with command line parameter
@@ -25,18 +25,18 @@ index 6d8493e..38a8985 100644
      I_InitGraphics();
  
 diff --git a/src/r_main.c b/src/r_main.c
-index 606b118..cd0c374 100644
+index c5e5ef6..6a39bff 100644
 --- a/src/r_main.c
 +++ b/src/r_main.c
-@@ -537,6 +537,7 @@ int autodetect_hom = 0;       // killough 2/7/98: HOM autodetection flag
+@@ -544,6 +544,7 @@ int autodetect_hom = 0;       // killough 2/7/98: HOM autodetection flag
  int rendered_visplanes, rendered_segs, rendered_vissprites;
  /* enable stats by default */
  boolean rendering_stats = 0;
 +boolean rendering_stats2 = 0;
  
- /* NOTE: ShowStats2 works only with SDL and on RISC-V! */
+ /* NOTE: ShowStats2 works only with SDL! */
  
-@@ -770,7 +771,7 @@ void R_RenderPlayerView (player_t* player)
+@@ -790,7 +791,7 @@ void R_RenderPlayerView (player_t* player)
    }
  
    if (rendering_stats) R_ShowStats();

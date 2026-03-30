@@ -24,9 +24,12 @@ The project
  * supports large storage devices (image files) as virtual sd-card (see below)
 
 ### Known Problems / Workarounds / Todos
- * Linux kernel: The RVV unaligned access probing (```CONFIG_RISCV_PROBE_VECTOR_UNALIGNED_ACCESS```) introduced in linux-6.13 is currently broken on RISC-V VP++ (hash fc19f747c4).
-   * Workaround: Probing is disabled (by using ```CONFIG_RISCV_EFFICIENT_VECTOR_UNALIGNED_ACCESS```).
-   * TODO: Fix probing on VP and re-enable in Kernel configurations.
+ * Linux kernel:
+   * The RVV unaligned access probing (```CONFIG_RISCV_PROBE_VECTOR_UNALIGNED_ACCESS```) introduced in linux-6.13 is currently broken on RISC-V VP++ (hash fc19f747c4).
+     * Workaround: Probing is disabled (by using ```CONFIG_RISCV_EFFICIENT_VECTOR_UNALIGNED_ACCESS```).
+     * TODO: Fix probing on VP and re-enable in Kernel configurations.
+   * The Perf RISC-V PMU SBI driver (esp. cycle and instruction counters) does not yet work with openSBI bootloader versions >=1.7.
+     * Workaround: We use openSBI version 1.6 for now.
 
 ## Build & Run
 This section explains how to build the project and boot the vp.

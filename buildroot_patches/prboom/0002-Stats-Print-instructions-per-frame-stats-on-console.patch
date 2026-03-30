@@ -1,37 +1,43 @@
-From 82b0d9deb7c85beb6e8dafa8c69bb9c55df235db Mon Sep 17 00:00:00 2001
+From 00fd297296b73477901e320da86c8e38f06727ad Mon Sep 17 00:00:00 2001
 From: Manfred SCHLAEGL <manfred.schlaegl@gmx.at>
 Date: Fri, 10 Feb 2023 13:23:05 +0100
 Subject: [PATCH 2/3] Stats: Print instructions per frame stats on console
- (WIP)
 
 Extended stats to also periodically print the number of instructions
 per frame (current, avg, min, max) to the console.
 
-The current cores instRet CSRs are used for this ->
-THE SHOWN VALUES ARE ONLY VALID FOR SINGLE CORE!!!
+Uses linux perf (PERF_COUNT_HW_INSTRUCTIONS) to read instruction
+counters.
 ---
- src/r_main.c | 66 ++++++++++++++++++++++++++++++++++++++++++++++++----
- 1 file changed, 62 insertions(+), 4 deletions(-)
+ src/r_main.c | 86 +++++++++++++++++++++++++++++++++++++++++++++++++---
+ 1 file changed, 82 insertions(+), 4 deletions(-)
 
 diff --git a/src/r_main.c b/src/r_main.c
-index df5d78e..606b118 100644
+index df5d78e..c5e5ef6 100644
 --- a/src/r_main.c
 +++ b/src/r_main.c
-@@ -59,6 +59,9 @@
+@@ -59,6 +59,16 @@
  #include "r_demo.h"
  #include "r_fps.h"
  
 +#include <inttypes.h>
 +#include <stdint.h>
++#include <stdio.h>
++#include <unistd.h>
++#include <linux/perf_event.h>
++#include <linux/hw_breakpoint.h>
++#include <sys/syscall.h>
++#include <sys/ioctl.h>
++#include <errno.h>
 +
  // Fineangles in the SCREENWIDTH wide window.
  #define FIELDOFVIEW 2048
  
-@@ -535,20 +538,58 @@ int rendered_visplanes, rendered_segs, rendered_vissprites;
+@@ -535,25 +545,73 @@ int rendered_visplanes, rendered_segs, rendered_vissprites;
  /* enable stats by default */
  boolean rendering_stats = 0;
  
-+/* NOTE: ShowStats2 works only with SDL and on RISC-V! */
++/* NOTE: ShowStats2 works only with SDL! */
 +
  #define STATS2_WARMUP_MS  (10*1000)
  #define STATS2_INIT       0
@@ -40,37 +46,46 @@ index df5d78e..606b118 100644
  int stats2_state = STATS2_INIT;
  
 -/* Works only with SDL and on RISC-V! */
-+static uint64_t getInstrCount()
++static long perf_event_open(struct perf_event_attr *hw_event, pid_t pid,
++                            int cpu, int group_fd, unsigned long flags)
 +{
-+#ifdef __riscv
-+#if __riscv_xlen == 32
-+  /* RV32 */
-+  uint32_t tmp, minstreth, minstret;
-+  asm volatile ("csrr %0, instreth" : "=r" (tmp));
-+  do {
-+    minstreth = tmp;
-+    asm volatile ("csrr %0, instret" : "=r" (minstret));
++  return syscall(__NR_perf_event_open, hw_event, pid, cpu, group_fd, flags);
++}
 +
-+    /* re-read on overrun of instret */
-+    asm volatile ("csrr %0, instreth" : "=r" (tmp));
-+  } while (tmp != minstreth);
-+  return (uint64_t)minstreth << 32 | minstret;
++static int perf_fd = -1;
 +
-+#elif __riscv_xlen == 64
-+  /* RV64 */
-+  uint64_t minstret;
-+  asm volatile ("csrr %0, instret" : "=r" (minstret));
-+  return minstret;
++static void perf_init(void) {
++  struct perf_event_attr pe;
++  memset(&pe, 0, sizeof(struct perf_event_attr));
++  pe.type = PERF_TYPE_HARDWARE;
++  pe.size = sizeof(struct perf_event_attr);
++  pe.config = PERF_COUNT_HW_INSTRUCTIONS;
++  pe.disabled = 1;
++  /* count all instructions */
++  pe.exclude_kernel = 0;
++  pe.exclude_hv = 0;
++  pe.exclude_user = 0;
++  perf_fd = perf_event_open(&pe, 0, -1, -1, 0);
++  if (perf_fd < 0) {
++    perror("perf_init");
++	printf("-> Perf: Instruction counter not supported -> ipf stats disabled\n");
++    return;
++  }
++  ioctl(perf_fd, PERF_EVENT_IOC_ENABLE, 0);
++}
 +
-+#else /* __riscv_xlen */
-+  /* not supported yet */
-+  return 0;
-+#endif
-+
-+#else /* __riscv */
-+  /* not supported yet */
-+  return 0;
-+#endif
++static uint64_t perf_getInstrCount()
++{
++  uint64_t count = 0;
++  if (perf_fd < 0) {
++    return 0;
++  }
++  int ret = read(perf_fd, &count, sizeof(count));
++  if (ret < 0) {
++	  perror("perf_read");
++	  return 0;
++  }
++  return count;
 +}
 +
  static void R_ShowStats2(void)
@@ -87,7 +102,13 @@ index df5d78e..606b118 100644
  
    /* get time since start of SDL in ms */
    curTick = SDL_GetTicks();
-@@ -567,10 +608,12 @@ static void R_ShowStats2(void)
+ 
+   if (stats2_state == STATS2_INIT) {
++    perf_init();
+     /* start warmup phase */
+     startTick = curTick + STATS2_WARMUP_MS;
+     stats2_state = STATS2_WARMUP;
+@@ -567,10 +625,12 @@ static void R_ShowStats2(void)
      }
      printf("STAT: WARMUP COMPLETE -> RUNNING\n");
      /* yes -> record start & running */
@@ -95,19 +116,19 @@ index df5d78e..606b118 100644
 -    startTick = curTick;
 +    startTick = SDL_GetTicks();
      lastTick = startTick;
-+    startInstrCount = getInstrCount();
++    startInstrCount = perf_getInstrCount();
 +    lastInstrCount = startInstrCount;
      stats2_state = STATS2_RUNNING;
 +    return;
    }
  
    /* stat2_state == STATS2_RUNNING */
-@@ -593,13 +636,28 @@ static void R_ShowStats2(void)
+@@ -593,13 +653,31 @@ static void R_ShowStats2(void)
    }
    avg_mfps = (1000 * 1000 * curFrameCount) / (curTick - startTick);
  
 +  /* calculate instructions per frame */
-+  curInstrCount = getInstrCount();
++  curInstrCount = perf_getInstrCount();
 +  cur_ipf = (curInstrCount - lastInstrCount) / (curFrameCount - lastFrameCount);
 +  if (cur_ipf > max_ipf) {
 +    max_ipf = cur_ipf;
@@ -127,8 +148,11 @@ index df5d78e..606b118 100644
 +  printf("STAT:\n");
 +  printf(" * cur_mfps = %d, avg_mfps = %d, min_mfps = %d, max_mfps = %d\n",
      cur_mfps, avg_mfps, min_mfps, max_mfps);
-+  printf(" * cur_ipf = %" PRIu64 ", avg_ipf = %" PRIu64 ", min_ipf = %" PRIu64 ", max_ipf = %" PRIu64 "\n",
-+    cur_ipf, avg_ipf, min_ipf, max_ipf);
++  /* check if ipf stats enabled (see perf_init above) */
++  if (perf_fd >= 0) {
++    printf(" * cur_ipf = %" PRIu64 ", avg_ipf = %" PRIu64 ", min_ipf = %" PRIu64 ", max_ipf = %" PRIu64 "\n",
++      cur_ipf, avg_ipf, min_ipf, max_ipf);
++  }
  }
  
  static void R_ShowStats(void)
