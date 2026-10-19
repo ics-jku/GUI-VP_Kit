@@ -1,5 +1,9 @@
 # GUI-VP Kit: A RISC-V VP Meets Linux Graphics -- Enabling Interactive Graphical Application Development
 
+**Powered by [RISC-V VP++](https://github.com/ics-jku/riscv-vp-plusplus):**
+
+[![RISC-V VP++ logo](https://raw.githubusercontent.com/ics-jku/riscv-vp-plusplus/master/doc/logo/preview/riscv_vp_plusplus_logo_name.png)](https://github.com/ics-jku/riscv-vp-plusplus)
+
 The aim of this project is to provide a quick to create and easy to use platform for experimenting with Linux on the open-source SystemC RISC-V based virtual prototype [RISCV-VP++](https://github.com/ics-jku/riscv-vp-plusplus).
 *RISCV-VP++* is a powerful open-source VP that allows simulation of RISC-V platforms capable of running Linux with interactive graphical applications.
 *GUI-VP Kit* handles the generation of all the necessary software parts and provides an experimentation environment for Linux with interactive graphical applications.
