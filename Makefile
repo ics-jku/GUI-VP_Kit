@@ -33,7 +33,8 @@ help:
 	@echo "VP Arguments:"
 	@echo $(VP_ARGS)
 	@echo "Can be overriden by user"
-	@echo "Example: VP_ARGS=\"$(VP_ARGS)\" make run_rv32_sc"
+	@echo "Example:"
+	@echo "VP_ARGS=\"$(VP_ARGS)\" make run_rv64_sc"
 	@echo
 
 all: build
